@@ -28,9 +28,12 @@
             IMP.request_pay({ // param
                 pg: 'kakaopay.TC0ONETIME',
                 pay_method: "card",
-                merchant_uid: createOrderNum(), //가맹점 주문번호 (아임포트를 사용하는 가맹점에서 중복되지 않은 임의의 문자열을 입력)
+                merchant_uid: createOrderNum(), // 주문번호 (중복되지 않은 임의의 문자열을 입력)
                 name: "당근", //결제창에 노출될 상품명
                 amount: 100, //금액
+                custom_data: {
+                    product_id: "123123" // 상품 번호를 넣을 예정
+                },
                 buyer_email : "nicek789@naver.com",
                 buyer_name : "minskim2",
                 buyer_tel : "010-9029-8796",
@@ -39,50 +42,36 @@
                     // 결제검증
                     console.log(rsp)
                     console.log(rsp.imp_uid)
+                    // 데이터를 json으로 보내기 위해 바꿔준다.
+                    var data = JSON.stringify({
+                        "orderNum" :  rsp.merchant_uid,
+                        "productNum" : "123123", //상품번호
+                        "num" : 123123, // 회원번호
+                        "productName" : rsp.name,
+                        "orderDate" : new Date().getTime(),
+                        "price" : rsp.amount,
+                        "imp_uid" : rsp.imp_uid,
+                        "reserveNum" :  456456 // 예약정보를 담고있는번호
+                    });
                     $.ajax({
                         url: 'https://localhost/api/v1/payment/verify/' + rsp.imp_uid,
-                        type: 'post'
+                        type: "POST",
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data : data
                     }).done(function(data) {
                         // 결제를 요청했던 금액과 실제 결제된 금액이 같으면 해당 주문건의 결제가 정상적으로 완료된 것으로 간주한다.
                         if (100 == data.response.amount) {
                             // jQuery로 HTTP 요청
                             // 주문정보 생성 및 테이블에 저장
-
-                            // 데이터를 json으로 보내기 위해 바꿔준다.
-                            data = JSON.stringify({
-                                "orderNum" :  rsp.merchant_uid,
-                                "productNum" : "123123", //상품번호
-                                "num" : 123123, // 회원번호
-                                "productName" : rsp.name,
-                                "orderDate" : new Date().getTime(),
-                                "totalPrice" : rsp.paid_amount,
-                                "imp_uid" : rsp.imp_uid,
-                                "reserNum" :  456456 // 예약정보를 담고있는번호
-                            });
-
-                            jQuery.ajax({
-                                url: "https://localhost/api/v1/payment/complete",
-                                type: "POST",
-                                dataType: 'json',
-                                contentType: 'application/json',
-                                data : data
-                            })
-                                .done(function(res) {
-                                    if (res > 0) {
-                                        swal('주문정보 저장 성공')
-                                        createPayInfo(rsp.imp_uid);
-                                    }
-                                    else {
-                                        swal('주문정보 저장 실패');
-                                    }
-                                })
+                            alert('결제 성공');
                         }
                         else {
                             alert('결제 실패');
                         }
                     })
                 } else {
-                    swal("결제에 실패하였습니다.","에러 내용: " +  rsp.error_msg,"error");
+                    alert("결제에 실패하였습니다." + " 에러 내용: " +  rsp.message);
                 }
             });
         }

@@ -1,7 +1,6 @@
 package LikeLion.UnderTheCBackend.controller;
 
 import LikeLion.UnderTheCBackend.service.PayService;
-import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
@@ -12,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,20 +21,24 @@ public class PaymentController {
     private PayService payService;
 
     @PostMapping("/verify/{imp_uid}")
-    @Operation(summary = "결제내역 확인", description = "상품이 성공적으로 결제 되었는지 확인하는 API", responses = {
-            @ApiResponse(responseCode = "200", description = "결제내역 확인")
+    @Operation(summary = "결제 API", description = "상품이 성공적으로 결제 되었는지 확인 후 처리", responses = {
+            @ApiResponse(responseCode = "200", description = "결제 확인")
     })
     public IamportResponse<Payment> verifyPayment(@PathVariable("imp_uid") String imp_uid) throws IamportResponseException, IOException {
         /* imp_uid 값으로 결제내역 확인 */
-        return payService.paymentByImpUid(imp_uid);
-    }
+        IamportResponse<Payment> res = payService.paymentByImpUid(imp_uid);
+        Payment payment = res.getResponse();
+        /* 실제 물건 가격과 결제 금액이 일치하는지 확인 */
+//        if (payment.getAmount() == 상품 가격)
 
-    @PostMapping("/complete")
-    @Operation(summary = "결제 처리", description = "실제 결제 금액이 일치하는지 확인하고 결제 처리 API", responses = {
-            @ApiResponse(responseCode = "200", description = "결제 처리")
-    })
-    public void completePayment(@RequestBody HashMap<String, Object> body) {
-        System.out.println("body = " + body.toString());
+        /* 주문 금액과 결제 금액이 다르면 */
+//        if (orderDTO.getTotalPrice() != Long.parseLong(amount)) {
+//            // 결제 취소
+//            payService.payMentCancle(token, orderDTO.getImp_uid(), amount,"결제 금액 오류");
+//            return res;
+//        }
+//        orderService.insert_pay(orderDTO);
+        return res;
     }
 
     @PostMapping("/web-hook")
