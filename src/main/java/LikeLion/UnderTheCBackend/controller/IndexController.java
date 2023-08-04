@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "index", description = "메인화면 API")
 @RestController
 @RequestMapping("/")
+@Tag(name = "index", description = "메인화면 API")
 public class IndexController {
     @GetMapping("")
     @Operation(summary = "Hello!", description = "처음으로 만든 API", responses = {
