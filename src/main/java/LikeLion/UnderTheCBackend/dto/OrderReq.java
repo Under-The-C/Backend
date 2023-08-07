@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderReq {
     @NonNull
-    private String impUid;
+    private String imp_uid;
 
     @NonNull
-    private String merchantUid;
+    private String merchant_uid;
 }
