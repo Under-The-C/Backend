@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- PortOne SDK -->
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript">
+        var IMP = window.IMP;
+
+        // 주문번호 만들기
+        function createOrderNum(){
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+
+            let orderNum = year + month + day;
+            for(let i=0;i<10;i++) {
+                orderNum += Math.floor(Math.random() * 8);
+            }
+            return orderNum;
+        }
+
+        function requestPay() {
+            // IMP.request_pay(param, callback) 결제창 호출
+            var IMP = window.IMP;
+            IMP.init('imp71170284');
+            IMP.request_pay({ // param
+                pg: 'kakaopay.TC0ONETIME',
+                pay_method: "card",
+                merchant_uid: createOrderNum(), // 주문번호 (중복되지 않은 임의의 문자열을 입력)
+                name: "당근", //결제창에 노출될 상품명
+                amount: 100, //금액
+                custom_data: {
+                    product_id: "123123" // 상품 번호를 넣을 예정
+                },
+                buyer_email : "nicek789@naver.com",
+                buyer_name : "minskim2",
+                buyer_tel : "010-9029-8796",
+            }, function (rsp) { // callback
+                if (rsp.success) { // 결제 성공 시: 결제 승인 또는 가상계좌 발급에 성공한 경우
+                    // 결제검증
+                    console.log(rsp)
+                    console.log(rsp.imp_uid)
+                    // 데이터를 json으로 보내기 위해 바꿔준다.
+                    var data = JSON.stringify({
+                        "orderNum" :  rsp.merchant_uid,
+                        "productNum" : "123123", //상품번호
+                        "num" : 123123, // 회원번호
+                        "productName" : rsp.name,
+                        "orderDate" : new Date().getTime(),
+                        "price" : rsp.amount,
+                        "imp_uid" : rsp.imp_uid,
+                        "merchant_uid": rsp.merchant_uid,
+                        "reserveNum" :  456456 // 예약정보를 담고있는번호
+                    });
+                    $.ajax({
+                        url: 'https://localhost/api/v1/payment/verify/' + rsp.imp_uid,
+                        type: "POST",
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data : data
+                    }).done(function(data) {
+                        // 결제를 요청했던 금액과 실제 결제된 금액이 같으면 해당 주문건의 결제가 정상적으로 완료된 것으로 간주한다.
+                        if (100 == data.response.amount) {
+                            // jQuery로 HTTP 요청
+                            // 주문정보 생성 및 테이블에 저장
+                            alert('결제 성공');
+                        }
+                        else {
+                            alert('결제 실패');
+                        }
+                    })
+                } else {
+                    alert("결제에 실패하였습니다." + " 에러 내용: " +  rsp.message);
+                }
+            });
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <title>Sample Payment</title>
+</head>
+<body>
+<button onclick="requestPay()">결제하기</button>
+<!-- 결제하기 버튼 생성 -->
+</body>
+</html>

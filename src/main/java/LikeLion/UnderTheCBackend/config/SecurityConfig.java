@@ -1,12 +1,17 @@
 package LikeLion.UnderTheCBackend.config;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,10 +35,11 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain myConfig(HttpSecurity http) throws Exception {
         /* 허용 페이지 등록 */
-        http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(WHITE_LIST).permitAll());
-        /* 로그인 페이지 설정 */
         http
+                .authorizeHttpRequests(authorize -> authorize
+//                        .requestMatchers(WHITE_LIST).permitAll()
+                        .anyRequest().permitAll())
+        /* 로그인 페이지 설정 */
                 .formLogin(form -> form
                         .usernameParameter("username")
                         .passwordParameter("password")
@@ -58,7 +64,7 @@ public class SecurityConfig {
                         )
                         .permitAll()
 
-                );
+                ).csrf((csrf) -> csrf.disable());
         return http.build();
     }
 }

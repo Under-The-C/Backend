@@ -1,9 +1,9 @@
 package LikeLion.UnderTheCBackend.repository;
 
-import LikeLion.UnderTheCBackend.entity.Product;
+import LikeLion.UnderTheCBackend.entity.ShoppingHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Integer> {
+public interface ShoppingHistoryRepository extends JpaRepository<ShoppingHistory, Integer> {
 }
