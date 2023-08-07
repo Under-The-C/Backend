@@ -3,6 +3,10 @@ package LikeLion.UnderTheCBackend.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.util.Date;
 
 @Entity
 @Getter
@@ -20,4 +24,11 @@ public class ShoppingHistory {
     @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "payment_id", referencedColumnName = "id")
     private Payment paymentId;
+
+    @CreatedDate
+    @Column(updatable = false)
+    private Date created_at;
+
+    @LastModifiedDate
+    private Date updated_at;
 }
