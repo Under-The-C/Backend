@@ -63,16 +63,16 @@ public class OrderService {
 
     public IamportResponse<Payment> completePayment(OrderReq data) throws IamportResponseException, IOException {
         /* imp_uid 값으로 결제내역 확인 */
-        IamportResponse<Payment> iRPayment = client.paymentByImpUid(data.getImpUid());
+        IamportResponse<Payment> iRPayment = client.paymentByImpUid(data.getImp_uid());
         Payment payment = iRPayment.getResponse();
 
         /* 입력받은 merchant_uid와 실제 결제 내역에 merchant_uid를 비교 */
-        if (!payment.getMerchantUid().equals(data.getMerchantUid())) {
+        if (!payment.getMerchantUid().equals(data.getMerchant_uid())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "위조된 결제 시도입니다.");
         }
 
         /* DB에 저장된 정보를 가져옴 */
-        Optional<Order> opt = orderRepository.findByMerchantUid(data.getMerchantUid());
+        Optional<Order> opt = orderRepository.findByMerchantUid(data.getMerchant_uid());
         Order order = opt.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 merchant_uid 입니다."));
 
         /* DB에 저장된 가격과 실제 결제된 가격을 비교 */
