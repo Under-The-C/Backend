@@ -23,7 +23,7 @@ public class ShoppingHistory {
 
     @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "payment_id", referencedColumnName = "id")
-    private Payment paymentId;
+    private Order orderId;
 
     @CreatedDate
     @Column(updatable = false)
