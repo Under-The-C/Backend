@@ -40,5 +40,6 @@ public class Product {
     private String category;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date created_at;
+    @Column(name="created_at")
+    private Date createdAt;
 }
