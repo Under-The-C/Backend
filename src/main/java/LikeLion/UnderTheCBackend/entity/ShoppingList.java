@@ -25,6 +25,8 @@ public class ShoppingList {
 //    @ManyToOne(cascade = CascadeType.REMOVE)
 //    @JoinColumn(name="buyer_id", referencedColumnName = "id")
 //    private Buyer buyerId;
+    @Column(name = "buyer_id", columnDefinition = "int")
+    private Integer buyerId;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="product_id", referencedColumnName = "id")

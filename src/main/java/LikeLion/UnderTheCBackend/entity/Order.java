@@ -51,13 +51,4 @@ public class Order {
 //    @ManyToOne(cascade = CascadeType.REMOVE)
 //    @JoinColumn(name="buyer_id", referencedColumnName = "id")
 //    private Buyer buyerId;
-
-    @NonNull
-    @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name="product_id", referencedColumnName = "id")
-    private Product productId;
-
-    public Order() {
-
-    }
 }

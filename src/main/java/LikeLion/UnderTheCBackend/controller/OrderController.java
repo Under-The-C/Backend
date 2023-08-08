@@ -25,13 +25,13 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @GetMapping("/merchant_uid/{product_id}")
+    @GetMapping("/merchant_uid/{buyer_id}")
     @Operation(summary = "주문번호를 생성 API", description = "날짜 기반의 고유 값 주문번호를 등록하고 반환하는 API", responses = {
             @ApiResponse(responseCode = "200", description = "주문번호 등록 후 전달 완료"),
             @ApiResponse(responseCode = "404", description = "상품 id가 잘못된 경우")
     })
-    public String makeMerchantUid(@PathVariable("product_id") Integer product_id) throws IamportResponseException, IOException {
-        return orderService.makeMerchantUid(product_id);
+    public String makeMerchantUid(@PathVariable("buyer_id") Integer buyer_id) throws IamportResponseException, IOException {
+        return orderService.makeMerchantUid(buyer_id);
     }
 
     @PostMapping("/complete")
