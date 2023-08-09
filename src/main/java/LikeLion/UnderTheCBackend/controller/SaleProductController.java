@@ -49,9 +49,17 @@ public class  SaleProductController {
             @Operation(summary = "판매 상품 찾기", description = "Product 테이블의 id로 특정 상품 반환", responses = {
                     @ApiResponse(responseCode = "200", description = "성공")
             })
+
             public Optional<Product> findById(@RequestParam("id") Long productId) {
-                Optional<Product> product = null;
-                product = productRepository.findById(productId);
+                Optional<Product> product = productRepository.findById(productId);
+
+                if (product.isPresent()) {
+                    Product existingProduct = product.get();
+                    existingProduct.setViewCount(existingProduct.getViewCount() + 1); // viewCount를 1 더해줌
+                    productRepository.save(existingProduct); // 변경된 상품 정보 저장
+                }
+
+
                 return product;
             }
             @GetMapping("/view_all")
