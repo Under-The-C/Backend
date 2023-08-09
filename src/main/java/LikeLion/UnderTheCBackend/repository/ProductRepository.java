@@ -30,4 +30,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByNameContainingAndKeywordContainingOrderByPrice(String productName, String keyword);
 
     List<Product> findAllByNameContainingAndKeywordContaining(String productName, String keyword);
+
+    List<Product> findAllByNameContainingOrderByViewCountDesc(String productName);
+
+    List<Product> findAllByNameContainingAndCategoryOrderByViewCountDesc(String productName, String category);
+
+    List<Product> findAllByNameContainingAndKeywordContainingOrderByViewCountDesc(String productName, String keyword);
 }
