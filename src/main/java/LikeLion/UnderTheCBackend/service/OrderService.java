@@ -1,6 +1,7 @@
 package LikeLion.UnderTheCBackend.service;
 
 import LikeLion.UnderTheCBackend.dto.OrderReq;
+import LikeLion.UnderTheCBackend.dto.WebHookJson;
 import LikeLion.UnderTheCBackend.entity.*;
 import LikeLion.UnderTheCBackend.repository.OrderRepository;
 import LikeLion.UnderTheCBackend.repository.ProductRepository;
@@ -102,6 +103,11 @@ public class OrderService {
         Optional<Order> opt = orderRepository.findByMerchantUid(data.getMerchant_uid());
         Order order = opt.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 merchant_uid 입니다."));
 
+        /* 중복 결제 방지 */
+        if (!order.getStatus().equals("결제대기")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 결제된 주문입니다.");
+        }
+
         /* DB에 저장된 가격과 실제 결제된 가격을 비교 */
         if (payment.getAmount() != order.getAmount()) {
             /* 결제 취소 */
@@ -146,6 +152,16 @@ public class OrderService {
         orderRepository.save(order);
 
         return client.cancelPaymentByImpUid(new CancelData(data.getImp_uid(), true));
+    }
+
+    public void webHookCheck(WebHookJson data) throws IamportResponseException, IOException {
+        Optional<Order> OptOrder = orderRepository.findByMerchantUid(data.getMerchant_uid());
+        Order order = OptOrder.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "merchant_uid가 올바르지 않습니다."));
+
+        /* 결제 대기상태인지 확인 후 결제 처리 진행 */
+        if (order.getStatus().equals("결제대기") && data.getStatus().equals("paid")) {
+            completePayment(order.getBuyerId(), data);
+        }
     }
 
 }
