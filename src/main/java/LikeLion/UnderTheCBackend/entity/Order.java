@@ -16,8 +16,8 @@ import java.util.Date;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, columnDefinition = "int")
-    private Integer id;
+    @Column(nullable = false)
+    private Long id;
 
     @NonNull
     @Column(name = "merchant_uid", nullable = false, columnDefinition = "varchar(55)", unique = true)
@@ -51,13 +51,4 @@ public class Order {
 //    @ManyToOne(cascade = CascadeType.REMOVE)
 //    @JoinColumn(name="buyer_id", referencedColumnName = "id")
 //    private Buyer buyerId;
-
-    @NonNull
-    @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name="product_id", referencedColumnName = "id")
-    private Product productId;
-
-    public Order() {
-
-    }
 }

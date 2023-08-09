@@ -1,10 +1,11 @@
 package LikeLion.UnderTheCBackend.service;
 
 import LikeLion.UnderTheCBackend.dto.OrderReq;
-import LikeLion.UnderTheCBackend.entity.Order;
-import LikeLion.UnderTheCBackend.entity.Product;
+import LikeLion.UnderTheCBackend.entity.*;
 import LikeLion.UnderTheCBackend.repository.OrderRepository;
 import LikeLion.UnderTheCBackend.repository.ProductRepository;
+import LikeLion.UnderTheCBackend.repository.ShoppingHistoryRepository;
+import LikeLion.UnderTheCBackend.repository.ShoppingListRepository;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.request.PrepareData;
@@ -17,8 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,30 +31,53 @@ public class OrderService {
     private String impKey;
     @Value("impSecretKey")
     private String impSecret;
-    final private IamportClient client = new IamportClient(this.impKey, this.impSecret);
+    final private IamportClient client;
     private OrderRepository orderRepository;
     private ProductRepository productRepository;
+    private ShoppingHistoryRepository shoppingHistoryRepository;
+    private ShoppingListRepository shoppingListRepository;
 
     @Autowired
-    OrderService(OrderRepository orderRepository, ProductRepository productRepository) {
+    OrderService(OrderRepository orderRepository, ProductRepository productRepository,
+                 ShoppingListRepository shoppingListRepository, ShoppingHistoryRepository shoppingHistoryRepository) {
+        this.client = new IamportClient(impKey, impSecret);
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.shoppingListRepository = shoppingListRepository;
+        this.shoppingHistoryRepository = shoppingHistoryRepository;
     }
 
-    public String makeMerchantUid(Integer product_id) throws IamportResponseException, IOException {
+    public String makeMerchantUid(Buyer buyer) throws IamportResponseException, IOException {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yy/MM/dd-");
         String merchantUid = formatter.format(date) + UUID.randomUUID();
 
-        Optional<Product> opt = productRepository.findById(product_id);
-        Product product = opt.orElseThrow((() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "product_id가 잘못되었습니다.")));
+        List<ShoppingList> list = shoppingListRepository.findByBuyerId(buyer.getId());
+        if (list.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "buyer_id가 올바르지 않습니다.");
+        }
 
-        /** 여기에 상품 수량 확인하는 코드가 필요할 듯 */
+        BigDecimal priceSum = new BigDecimal("0");
+        for (ShoppingList li : list) {
+            Optional<Product> opt = productRepository.findById(li.getProductId().getId());
+            Product product = opt.orElseThrow((() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "product_id가 잘못되었습니다.")));
 
-        PrepareData prepareData = new PrepareData(merchantUid, product.getPrice());
+            priceSum.add(product.getPrice());
+
+            /* 결제 상품 하나씩 등록 */
+            ShoppingHistory shoppingHistory = new ShoppingHistory(buyer, product, "결제대기");
+            shoppingHistoryRepository.save(shoppingHistory);
+
+            /* 장바구니에서 상품 지우기 */
+            shoppingListRepository.delete(li);
+
+            /** 여기에 상품 수량 확인하는 코드가 필요할 듯 */
+        }
+
+        PrepareData prepareData = new PrepareData(merchantUid, priceSum);
         client.postPrepare(prepareData);
 
-        Order order = new Order(merchantUid, product.getPrice(), product);
+        Order order = new Order(merchantUid, priceSum);
         orderRepository.save(order);
 
         return merchantUid;
@@ -61,7 +87,7 @@ public class OrderService {
         return client.paymentByImpUid(imp_uid);
     }
 
-    public IamportResponse<Payment> completePayment(OrderReq data) throws IamportResponseException, IOException {
+    public IamportResponse<Payment> completePayment(Buyer buyer, OrderReq data) throws IamportResponseException, IOException {
         /* imp_uid 값으로 결제내역 확인 */
         IamportResponse<Payment> iRPayment = client.paymentByImpUid(data.getImp_uid());
         Payment payment = iRPayment.getResponse();
@@ -82,6 +108,17 @@ public class OrderService {
         
         order.setStatus("결제완료");
         orderRepository.save(order);
+
+        /* 상품 구매내역 저장 */
+        List<ShoppingHistory> historyList = shoppingHistoryRepository.findByBuyerId(buyer.getId());
+        if (historyList.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "buyer_id가 올바르지 않습니다.");
+        }
+
+        for (ShoppingHistory history : historyList) {
+            history.setStatus("결제완료");
+            shoppingHistoryRepository.save(history);
+        }
 
         return iRPayment;
     }

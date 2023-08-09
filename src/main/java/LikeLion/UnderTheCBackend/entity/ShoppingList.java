@@ -14,17 +14,16 @@ import java.util.Date;
 public class ShoppingList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, columnDefinition = "int")
-    private Integer id;
+    @Column(nullable = false)
+    private Long id;
 
     @CreatedDate
     @Column(updatable = false)
     private Date created_at;
 
-    /**  아직 테이블이 안만들어져서 주석처리 */
-//    @ManyToOne(cascade = CascadeType.REMOVE)
-//    @JoinColumn(name="buyer_id", referencedColumnName = "id")
-//    private Buyer buyerId;
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name="buyer_id", referencedColumnName = "id")
+    private Buyer buyerId;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="product_id", referencedColumnName = "id")
