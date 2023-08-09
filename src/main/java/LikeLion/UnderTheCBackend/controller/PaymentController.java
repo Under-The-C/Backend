@@ -21,7 +21,7 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/order")
-@Tag(name = "B_Payment", description = "결제 API")
+@Tag(name = "Payment API", description = "결제 API")
 public class PaymentController {
     private PaymentService paymentService;
     @Autowired
