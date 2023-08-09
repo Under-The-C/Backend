@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Integer> {
+public interface ProductRepository extends JpaRepository<Product, Long> {
     //**OrderBy 앞에는 And를 붙이지 않음**
 
     Optional<Product> findByName(String productName);
