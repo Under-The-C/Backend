@@ -12,7 +12,6 @@ import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.request.PrepareData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -54,7 +53,7 @@ public class OrderService {
         SimpleDateFormat formatter = new SimpleDateFormat("yy/MM/dd-");
         String merchantUid = formatter.format(date) + UUID.randomUUID();
 
-        List<ShoppingList> list = shoppingListRepository.findByBuyerId(buyer.getId());
+        List<ShoppingList> list = shoppingListRepository.findByBuyerId_Id(buyer.getId());
         if (list.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "buyer_id가 올바르지 않습니다.");
         }
@@ -114,7 +113,7 @@ public class OrderService {
         orderRepository.save(order);
 
         /* 상품 구매내역 저장 */
-        List<ShoppingHistory> historyList = shoppingHistoryRepository.findByBuyerId(buyer.getId());
+        List<ShoppingHistory> historyList = shoppingHistoryRepository.findByBuyerId_Id(buyer.getId());
         if (historyList.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "buyer_id가 올바르지 않습니다.");
         }
@@ -129,7 +128,7 @@ public class OrderService {
     }
 
     public IamportResponse<Payment> cancelPayment(Buyer buyer, OrderReq data) throws IamportResponseException, IOException {
-        List<ShoppingHistory> historyList = shoppingHistoryRepository.findByBuyerIdAndImpUid(buyer.getId(), data.getImp_uid());
+        List<ShoppingHistory> historyList = shoppingHistoryRepository.findByBuyerId_IdAndImpUid(buyer.getId(), data.getImp_uid());
         if (historyList.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "data가 올바르지 않습니다.");
         }
