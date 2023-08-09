@@ -23,7 +23,7 @@ public class SearchProductController {
 
     @GetMapping("/all")
     @Operation(summary = "모든 판매 상품 검색 (최신순 or 조회순 or 리뷰순 or 가격순)", description = "Product 테이블에서 Name으로 검색하여 " +
-            "정렬된 Product 객체 반환 (조회, 리뷰순 추가 예정)", responses = {
+            "정렬된 Product 객체 반환 (리뷰순 추가 예정)", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
     public List<Product> searchAll(
@@ -37,6 +37,8 @@ public class SearchProductController {
             product = productRepository.findAllByNameContainingOrderByCreatedAtDesc(productName);
         } else if (sortBy.equals("가격순")) {
             product = productRepository.findAllByNameContainingOrderByPrice(productName);
+        } else if (sortBy.equals("조회순")) {
+            product = productRepository.findAllByNameContainingOrderByViewCountDesc(productName);
         } else {
             product = productRepository.findAllByNameContaining(productName);
         }
@@ -45,7 +47,7 @@ public class SearchProductController {
 
     @GetMapping("/category")
     @Operation(summary = "판매 상품 카테고리 검색 (최신순 or 조회순 or 리뷰순 or 가격순)", description = "Product 테이블에서 Name으로 검색하여 " +
-            "선택한 Category의 정렬된 Product 객체 반환(조회, 리뷰순 추가 예정)", responses = {
+            "선택한 Category의 정렬된 Product 객체 반환(리뷰순 추가 예정)", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
     public List<Product> searchByCategory(
@@ -69,6 +71,13 @@ public class SearchProductController {
                 product = productRepository.findAllByNameContainingOrderByPrice(productName);
             }
             return product;
+        } else if (sortBy.equals("조회순")) {
+            if (category != null && !category.isEmpty()) {
+                product = productRepository.findAllByNameContainingAndCategoryOrderByViewCountDesc(productName, category);
+            } else {
+                product = productRepository.findAllByNameContainingOrderByViewCountDesc(productName);
+            }
+            return product;
         }else {
             if (category != null && !category.isEmpty()) {
                 product = productRepository.findAllByNameContainingAndCategory(productName, category);
@@ -81,7 +90,7 @@ public class SearchProductController {
     }
     @GetMapping("/keyword")
     @Operation(summary = "판매 상품 키워드 검색 (최신순 or 조회순 or 리뷰순 or 가격순)", description = "Product 테이블에서 Name으로 검색하여 " +
-            "요청한 keyword를 포함한 정렬된 Product 객체 반환 (조회, 리뷰순 추가 예정)", responses = {
+            "요청한 keyword를 포함한 정렬된 Product 객체 반환 (리뷰순 추가 예정)", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
     public List<Product> searchKeyword(
@@ -103,6 +112,13 @@ public class SearchProductController {
                 product = productRepository.findAllByNameContainingAndKeywordContainingOrderByPrice(productName, keyword);
             } else {
                 product = productRepository.findAllByNameContainingOrderByPrice(productName);
+            }
+            return product;
+        } else if (sortBy.equals("조회순")) {
+            if (keyword != null && !keyword.isEmpty()) {
+                product = productRepository.findAllByNameContainingAndKeywordContainingOrderByViewCountDesc(productName, keyword);
+            } else {
+                product = productRepository.findAllByNameContainingOrderByViewCountDesc(productName);
             }
             return product;
         }else {

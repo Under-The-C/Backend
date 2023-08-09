@@ -89,7 +89,7 @@ public class  SaleProductController {
             if (productRequest.getName() != null) {
                 String productName = productRequest.getName();
                 Optional<Product> existingProduct = productRepository.findByName(productName);
-                if (existingProduct.isPresent()) {
+                if (product.getId()!=existingProduct.get().getId() && existingProduct.isPresent()) {
                     // 이미 해당 이름의 상품이 존재하는 경우 예외 처리
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "같은 이름의 상품이 이미 존재합니다.");
                 }
@@ -105,6 +105,10 @@ public class  SaleProductController {
                 product.setDescription(productRequest.getDescription());
             if (productRequest.getPeriod() !=null)
                 product.setPeriod(productRequest.getPeriod());
+            if (productRequest.getSubTitle() !=null)
+                product.setSubTitle(productRequest.getSubTitle());
+            if (productRequest.getSubDescription() !=null)
+                product.setSubDescription(productRequest.getSubDescription());
             if (productRequest.getMain_image()!=null) //이미지 관련 DB접근은 수정 필요함
                 product.setMain_image(product.getMain_image());
             productRepository.save(product);
