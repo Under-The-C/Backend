@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -12,7 +13,7 @@ import java.util.Date;
 @Table(name = "product")
 @Getter
 @Setter
-@JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone="Asia/Seoul")//Date타입 포맷 변경
+
 public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -42,6 +43,8 @@ public class Product {
     @Column(length = 255)
     private String keyword;
 
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")//Date타입 포맷 변경
     private Date period;
 
     @Column(length = 255)
@@ -51,6 +54,8 @@ public class Product {
     private int viewCount;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")//Date타입 포맷 변경
     @Column(name="created_at")
     private Date createdAt;
 }
