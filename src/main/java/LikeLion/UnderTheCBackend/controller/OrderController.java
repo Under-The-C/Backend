@@ -44,9 +44,18 @@ public class OrderController {
         return orderService.completePayment((Buyer) session.getAttribute("user"), data);
     }
 
+    @PostMapping("/cancel")
+    @Operation(summary = "결제 취소 API", description = "결제한 주문을 취소하는 API", responses = {
+            @ApiResponse(responseCode = "200", description = "결제 취소 완료")
+    })
+    public IamportResponse<Payment> cancelOrder(Session session, OrderReq data) throws IamportResponseException, IOException {
+        return orderService.cancelPayment((Buyer) session.getAttribute("user"), data);
+    }
+
     @PostMapping("/web-hook")
     public String webHookCheck() {
-        return "success";
+//        return orderService.checkWebHook();
+        return "test";
     }
 
 }

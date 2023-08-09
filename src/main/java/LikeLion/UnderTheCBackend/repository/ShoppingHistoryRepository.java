@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface ShoppingHistoryRepository extends JpaRepository<ShoppingHistory, Long> {
     List<ShoppingHistory> findByBuyerId(Long buyerId);
+
+    List<ShoppingHistory> findByBuyerIdAndImpUid(Long buyerId, String impUid);
 }
