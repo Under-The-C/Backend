@@ -54,7 +54,7 @@ public class PaymentController {
             @ApiResponse(responseCode = "200", description = "결제 취소 완료")
     })
     public IamportResponse<Payment> cancelOrder(@Parameter(hidden = true) Session session,
-                                                PaymentReq data) throws IamportResponseException, IOException {
+                                                @RequestBody PaymentReq data) throws IamportResponseException, IOException {
         Buyer buyer = (Buyer) session.getAttribute("user");
         return paymentService.cancelPayment(buyer, data);
     }
