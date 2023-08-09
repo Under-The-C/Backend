@@ -49,7 +49,7 @@ public class  SaleProductController {
             @Operation(summary = "판매 상품 찾기", description = "Product 테이블의 id로 특정 상품 반환", responses = {
                     @ApiResponse(responseCode = "200", description = "성공")
             })
-            public Optional<Product> findById(@RequestParam("id") int productId) {
+            public Optional<Product> findById(@RequestParam("id") Long productId) {
                 Optional<Product> product = null;
                 product = productRepository.findById(productId);
                 return product;
@@ -69,7 +69,7 @@ public class  SaleProductController {
             @ApiResponse(responseCode = "200", description = "성공")
     })
     public Product updateProduct(
-            @PathVariable("id") int productId,
+            @PathVariable("id") Long productId,
             @RequestBody Product productRequest
     ) {
 
@@ -110,7 +110,7 @@ public class  SaleProductController {
         @Operation(summary = "판매 상품 삭제", description = "Product 테이블에 지정된 id로 판매 상품 삭제", responses = {
                 @ApiResponse(responseCode = "200", description = "성공")
         })
-        public Product deleteById(@RequestParam("evaluationId") int productId) {
+        public Product deleteById(@RequestParam("evaluationId") Long productId) {
 
             //String sellerId = seller.getId(); seller테이블 받으면 구현 재개
 
