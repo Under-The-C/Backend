@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ShoppingListRepository extends JpaRepository<ShoppingList, Integer> {
-    List<ShoppingList> findByBuyerId(Integer buyer_id);
+public interface ShoppingListRepository extends JpaRepository<ShoppingList, Long> {
+    List<ShoppingList> findByBuyerId(Long buyer_id);
 }

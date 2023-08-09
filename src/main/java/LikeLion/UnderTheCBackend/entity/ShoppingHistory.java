@@ -18,17 +18,22 @@ import java.util.Date;
 public class ShoppingHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, columnDefinition = "int")
-    private Integer id;
+    @Column(nullable = false)
+    private Long id;
 
     @NonNull
-    @Column(nullable = false, columnDefinition = "varchar(10)")
-    private String status;
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "buyer_id", referencedColumnName = "id")
+    private Buyer buyerId;
 
     @NonNull
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product productId;
+
+    @NonNull
+    @Column(nullable = false, columnDefinition = "varchar(10)")
+    private String status;
 
     @CreatedDate
     @Column(updatable = false)
