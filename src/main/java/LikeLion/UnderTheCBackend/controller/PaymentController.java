@@ -20,7 +20,7 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/order")
+@RequestMapping("/api/v1/payment")
 @Tag(name = "Payment API", description = "결제 API")
 public class PaymentController {
     private PaymentService paymentService;
