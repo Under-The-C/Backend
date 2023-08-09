@@ -1,5 +1,6 @@
 package LikeLion.UnderTheCBackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.util.Date;
 @Table(name = "product")
 @Getter
 @Setter
+@JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone="Asia/Seoul")//Date타입 포맷 변경
 public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -22,11 +24,17 @@ public class Product {
     @Column(length = 255)
     private String name;
 
+    @Column(length = 255, name="sub_title")//소제목
+    private String subTitle;
+
     @Column(columnDefinition = "decimal(64,0)")
     private BigDecimal price;
 
     @Column(length = 255)
     private String description;
+
+    @Column(length = 255, name="sub_description")//추가 설명
+    private String subDescription;
 
     @Column(length = 255)
     private String main_image; //image 저장방법 확인 후 수정필요함
@@ -38,6 +46,9 @@ public class Product {
 
     @Column(length = 255)
     private String category;
+
+    @Column(name="view_count")
+    private int viewCount;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="created_at")
