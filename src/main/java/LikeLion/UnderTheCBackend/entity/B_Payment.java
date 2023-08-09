@@ -12,8 +12,8 @@ import java.util.Date;
 @Getter
 @Setter
 @RequiredArgsConstructor
-@Table(name = "order")
-public class Order {
+@Table(name = "payment")
+public class B_Payment {
     @Column(nullable = false)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

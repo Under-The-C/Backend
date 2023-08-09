@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class OrderReq {
+public class PaymentReq {
     @NonNull
     private String imp_uid;
 

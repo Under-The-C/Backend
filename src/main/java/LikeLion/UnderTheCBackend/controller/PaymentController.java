@@ -1,9 +1,9 @@
 package LikeLion.UnderTheCBackend.controller;
 
-import LikeLion.UnderTheCBackend.dto.OrderReq;
+import LikeLion.UnderTheCBackend.dto.PaymentReq;
 import LikeLion.UnderTheCBackend.dto.WebHookJson;
 import LikeLion.UnderTheCBackend.entity.Buyer;
-import LikeLion.UnderTheCBackend.service.OrderService;
+import LikeLion.UnderTheCBackend.service.PaymentService;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
@@ -21,12 +21,12 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/order")
-@Tag(name = "Order", description = "결제 API")
-public class OrderController {
-    private OrderService orderService;
+@Tag(name = "B_Payment", description = "결제 API")
+public class PaymentController {
+    private PaymentService paymentService;
     @Autowired
-    OrderController(OrderService orderService) {
-        this.orderService = orderService;
+    PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
     }
 
     @GetMapping("/merchant_uid")
@@ -36,7 +36,7 @@ public class OrderController {
     })
     public String makeMerchantUid(@Parameter(hidden = true) Session session) throws IamportResponseException, IOException {
         Buyer buyer = (Buyer) session.getAttribute("user");
-        return orderService.makeMerchantUid(buyer);
+        return paymentService.makeMerchantUid(buyer);
     }
 
     @PostMapping("/complete")
@@ -44,9 +44,9 @@ public class OrderController {
             @ApiResponse(responseCode = "200", description = "결제 완료")
     })
     public IamportResponse<Payment> completeOrder(@Parameter(hidden = true) Session session,
-                                                  @RequestBody OrderReq data) throws IamportResponseException, IOException {
+                                                  @RequestBody PaymentReq data) throws IamportResponseException, IOException {
         Buyer buyer = (Buyer) session.getAttribute("user");
-        return orderService.completePayment(buyer, data);
+        return paymentService.completePayment(buyer, data);
     }
 
     @PostMapping("/cancel")
@@ -54,9 +54,9 @@ public class OrderController {
             @ApiResponse(responseCode = "200", description = "결제 취소 완료")
     })
     public IamportResponse<Payment> cancelOrder(@Parameter(hidden = true) Session session,
-                                                OrderReq data) throws IamportResponseException, IOException {
+                                                PaymentReq data) throws IamportResponseException, IOException {
         Buyer buyer = (Buyer) session.getAttribute("user");
-        return orderService.cancelPayment(buyer, data);
+        return paymentService.cancelPayment(buyer, data);
     }
 
     @PostMapping("/web-hook")
@@ -64,7 +64,7 @@ public class OrderController {
             @ApiResponse(responseCode = "200", description = "WebHook 처리 완료")
     })
     public void webHookCheck(@RequestBody WebHookJson data) throws IamportResponseException, IOException {
-        orderService.webHookCheck(data);
+        paymentService.webHookCheck(data);
     }
 
 }

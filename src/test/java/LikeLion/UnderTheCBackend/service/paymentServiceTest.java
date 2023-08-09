@@ -12,12 +12,12 @@ import org.springframework.context.annotation.Configuration;
 )
 class PaymentServiceAppConfig {};
 
-public class OrderServiceTest {
+public class paymentServiceTest {
 
     @Test
     void makeMerchantUid() {
         ApplicationContext ac = new AnnotationConfigApplicationContext(PaymentServiceAppConfig.class);
-        OrderService orderService =  ac.getBean("orderService", OrderService.class);
+        PaymentService paymentService =  ac.getBean("paymentService", PaymentService.class);
 //        System.out.println("merchant_uid = " + paymentService.makeMerchantUid());
     }
 }

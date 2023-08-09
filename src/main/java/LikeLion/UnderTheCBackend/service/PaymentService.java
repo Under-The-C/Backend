@@ -1,9 +1,9 @@
 package LikeLion.UnderTheCBackend.service;
 
-import LikeLion.UnderTheCBackend.dto.OrderReq;
+import LikeLion.UnderTheCBackend.dto.PaymentReq;
 import LikeLion.UnderTheCBackend.dto.WebHookJson;
 import LikeLion.UnderTheCBackend.entity.*;
-import LikeLion.UnderTheCBackend.repository.OrderRepository;
+import LikeLion.UnderTheCBackend.repository.PaymentRepository;
 import LikeLion.UnderTheCBackend.repository.ProductRepository;
 import LikeLion.UnderTheCBackend.repository.ShoppingHistoryRepository;
 import LikeLion.UnderTheCBackend.repository.ShoppingListRepository;
@@ -28,22 +28,22 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class OrderService {
+public class PaymentService {
     @Value("impKey")
     private String impKey;
     @Value("impSecretKey")
     private String impSecret;
     final private IamportClient client;
-    private OrderRepository orderRepository;
+    private PaymentRepository paymentRepository;
     private ProductRepository productRepository;
     private ShoppingHistoryRepository shoppingHistoryRepository;
     private ShoppingListRepository shoppingListRepository;
 
     @Autowired
-    OrderService(OrderRepository orderRepository, ProductRepository productRepository,
-                 ShoppingListRepository shoppingListRepository, ShoppingHistoryRepository shoppingHistoryRepository) {
+    PaymentService(PaymentRepository paymentRepository, ProductRepository productRepository,
+                   ShoppingListRepository shoppingListRepository, ShoppingHistoryRepository shoppingHistoryRepository) {
         this.client = new IamportClient(impKey, impSecret);
-        this.orderRepository = orderRepository;
+        this.paymentRepository = paymentRepository;
         this.productRepository = productRepository;
         this.shoppingListRepository = shoppingListRepository;
         this.shoppingHistoryRepository = shoppingHistoryRepository;
@@ -79,8 +79,8 @@ public class OrderService {
         PrepareData prepareData = new PrepareData(merchantUid, priceSum);
         client.postPrepare(prepareData);
 
-        Order order = new Order(merchantUid, priceSum);
-        orderRepository.save(order);
+        B_Payment BPayment = new B_Payment(merchantUid, priceSum);
+        paymentRepository.save(BPayment);
 
         return merchantUid;
     }
@@ -89,7 +89,7 @@ public class OrderService {
         return client.paymentByImpUid(imp_uid);
     }
 
-    public IamportResponse<Payment> completePayment(Buyer buyer, OrderReq data) throws IamportResponseException, IOException {
+    public IamportResponse<Payment> completePayment(Buyer buyer, PaymentReq data) throws IamportResponseException, IOException {
         /* imp_uid 값으로 결제내역 확인 */
         IamportResponse<Payment> iRPayment = client.paymentByImpUid(data.getImp_uid());
         Payment payment = iRPayment.getResponse();
@@ -100,8 +100,8 @@ public class OrderService {
         }
 
         /* DB에 저장된 정보를 가져옴 */
-        Optional<Order> opt = orderRepository.findByMerchantUid(data.getMerchant_uid());
-        Order order = opt.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 merchant_uid 입니다."));
+        Optional<B_Payment> opt = paymentRepository.findByMerchantUid(data.getMerchant_uid());
+        B_Payment order = opt.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 merchant_uid 입니다."));
 
         /* 중복 결제 방지 */
         if (!order.getStatus().equals("결제대기")) {
@@ -116,7 +116,7 @@ public class OrderService {
         }
         
         order.setStatus("결제완료");
-        orderRepository.save(order);
+        paymentRepository.save(order);
 
         /* 상품 구매내역 저장 */
         List<ShoppingHistory> historyList = shoppingHistoryRepository.findByBuyerId_Id(buyer.getId());
@@ -133,7 +133,7 @@ public class OrderService {
         return iRPayment;
     }
 
-    public IamportResponse<Payment> cancelPayment(Buyer buyer, OrderReq data) throws IamportResponseException, IOException {
+    public IamportResponse<Payment> cancelPayment(Buyer buyer, PaymentReq data) throws IamportResponseException, IOException {
         List<ShoppingHistory> historyList = shoppingHistoryRepository.findByBuyerId_IdAndImpUid(buyer.getId(), data.getImp_uid());
         if (historyList.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "data가 올바르지 않습니다.");
@@ -145,22 +145,22 @@ public class OrderService {
             shoppingHistoryRepository.save(history);
         }
 
-        /* order 상태를 결제취소로 변경 */
-        Optional<Order> optOrder = orderRepository.findByMerchantUid(data.getMerchant_uid());
-        Order order = optOrder.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "merchant_uid가 올바르지 않습니다."));
-        order.setStatus("결제취소");
-        orderRepository.save(order);
+        /* B_Payment 상태를 결제취소로 변경 */
+        Optional<B_Payment> optOrder = paymentRepository.findByMerchantUid(data.getMerchant_uid());
+        B_Payment BPayment = optOrder.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "merchant_uid가 올바르지 않습니다."));
+        BPayment.setStatus("결제취소");
+        paymentRepository.save(BPayment);
 
         return client.cancelPaymentByImpUid(new CancelData(data.getImp_uid(), true));
     }
 
     public void webHookCheck(WebHookJson data) throws IamportResponseException, IOException {
-        Optional<Order> OptOrder = orderRepository.findByMerchantUid(data.getMerchant_uid());
-        Order order = OptOrder.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "merchant_uid가 올바르지 않습니다."));
+        Optional<B_Payment> OptOrder = paymentRepository.findByMerchantUid(data.getMerchant_uid());
+        B_Payment BPayment = OptOrder.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "merchant_uid가 올바르지 않습니다."));
 
         /* 결제 대기상태인지 확인 후 결제 처리 진행 */
-        if (order.getStatus().equals("결제대기") && data.getStatus().equals("paid")) {
-            completePayment(order.getBuyerId(), data);
+        if (BPayment.getStatus().equals("결제대기") && data.getStatus().equals("paid")) {
+            completePayment(BPayment.getBuyerId(), data);
         }
     }
 
