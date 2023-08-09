@@ -35,6 +35,9 @@ public class ShoppingHistory {
     @Column(nullable = false, columnDefinition = "varchar(10)")
     private String status;
 
+    @Column(name = "imp_uid", nullable = false, columnDefinition = "varchar(20)")
+    private String impUid;
+
     @CreatedDate
     @Column(updatable = false)
     private Date created_at;

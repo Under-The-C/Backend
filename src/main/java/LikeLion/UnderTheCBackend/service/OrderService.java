@@ -8,6 +8,7 @@ import LikeLion.UnderTheCBackend.repository.ShoppingHistoryRepository;
 import LikeLion.UnderTheCBackend.repository.ShoppingListRepository;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.request.PrepareData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
@@ -52,7 +53,7 @@ public class OrderService {
         SimpleDateFormat formatter = new SimpleDateFormat("yy/MM/dd-");
         String merchantUid = formatter.format(date) + UUID.randomUUID();
 
-        List<ShoppingList> list = shoppingListRepository.findByBuyerId(buyer.getId());
+        List<ShoppingList> list = shoppingListRepository.findByBuyerId_Id(buyer.getId());
         if (list.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "buyer_id가 올바르지 않습니다.");
         }
@@ -103,25 +104,48 @@ public class OrderService {
 
         /* DB에 저장된 가격과 실제 결제된 가격을 비교 */
         if (payment.getAmount() != order.getAmount()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "위조된 결제 시도입니다.");
+            /* 결제 취소 */
+            client.cancelPaymentByImpUid(new CancelData(data.getImp_uid(), true));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "결제 금액이 잘못 되었습니다.");
         }
         
         order.setStatus("결제완료");
         orderRepository.save(order);
 
         /* 상품 구매내역 저장 */
-        List<ShoppingHistory> historyList = shoppingHistoryRepository.findByBuyerId(buyer.getId());
+        List<ShoppingHistory> historyList = shoppingHistoryRepository.findByBuyerId_Id(buyer.getId());
         if (historyList.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "buyer_id가 올바르지 않습니다.");
         }
 
         for (ShoppingHistory history : historyList) {
             history.setStatus("결제완료");
+            history.setImpUid(data.getImp_uid());
             shoppingHistoryRepository.save(history);
         }
 
         return iRPayment;
     }
 
+    public IamportResponse<Payment> cancelPayment(Buyer buyer, OrderReq data) throws IamportResponseException, IOException {
+        List<ShoppingHistory> historyList = shoppingHistoryRepository.findByBuyerId_IdAndImpUid(buyer.getId(), data.getImp_uid());
+        if (historyList.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "data가 올바르지 않습니다.");
+        }
+
+        /* 구매 기록을 전부 결제 취소로 변경 */
+        for (ShoppingHistory history : historyList) {
+            history.setStatus("결제취소");
+            shoppingHistoryRepository.save(history);
+        }
+
+        /* order 상태를 결제취소로 변경 */
+        Optional<Order> optOrder = orderRepository.findByMerchantUid(data.getMerchant_uid());
+        Order order = optOrder.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "merchant_uid가 올바르지 않습니다."));
+        order.setStatus("결제취소");
+        orderRepository.save(order);
+
+        return client.cancelPaymentByImpUid(new CancelData(data.getImp_uid(), true));
+    }
 
 }

@@ -14,9 +14,9 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Table(name = "order")
 public class Order {
+    @Column(nullable = false)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
     private Long id;
 
     @NonNull
@@ -47,8 +47,7 @@ public class Order {
     @Column(updatable = false)
     private Date created_at;
 
-    /**  아직 테이블이 안만들어져서 주석처리 */
-//    @ManyToOne(cascade = CascadeType.REMOVE)
-//    @JoinColumn(name="buyer_id", referencedColumnName = "id")
-//    private Buyer buyerId;
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name="buyer_id", referencedColumnName = "id")
+    private Buyer buyerId;
 }
