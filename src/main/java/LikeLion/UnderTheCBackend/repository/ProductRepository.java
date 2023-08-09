@@ -20,4 +20,14 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     List<Product> findAllByNameContainingAndCategoryOrderByCreatedAtDesc(String productName, String category); // 수정: 메서드명 변경
 
+
+    List<Product> findAllByNameContainingAndCategoryOrderByPrice(String productName, String category);
+
+    List<Product> findAllByNameContainingAndCategory(String productName, String category);
+
+    List<Product> findAllByNameContainingAndKeywordContainingOrderByCreatedAtDesc(String productName, String keyword);
+
+    List<Product> findAllByNameContainingAndKeywordContainingOrderByPrice(String productName, String keyword);
+
+    List<Product> findAllByNameContainingAndKeywordContaining(String productName, String keyword);
 }
