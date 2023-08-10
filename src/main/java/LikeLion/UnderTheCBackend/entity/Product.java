@@ -49,9 +49,13 @@ public class Product {
     @ElementCollection
     private List<String> keyword;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy.MM.dd")
-    @DateTimeFormat(pattern = "yyyy.MM.dd")//Date타입 포맷 변경
-    private Date period;
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")//Date타입 포맷 변경
+    private Date saleStartDate;
+
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")//Date타입 포맷 변경
+    private Date saleEndDate;
 
     @Column(length = 255)
     private String category;
@@ -60,8 +64,8 @@ public class Product {
     private int viewCount;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy.MM.dd")
-    @DateTimeFormat(pattern = "yyyy.MM.dd")//Date타입 포맷 변경
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")//Date타입 포맷 변경
     @Column(name="created_at")
     private Date createdAt;
 }

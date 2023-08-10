@@ -40,7 +40,8 @@ public class  SaleProductController {
                 @RequestParam(required = false) String mainImage,
                 @RequestParam(required = false) List<String> keyword,
                 @RequestParam(required = false) List<String> detailImage,
-                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date period,
+                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleStartDate,
+                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleEndDate,
                 @RequestParam(required = false) String category
         ) {
             //로그인 정보 왜래키로 받아 Product테이블의 seller_id에 set 필요
@@ -62,7 +63,8 @@ public class  SaleProductController {
             newProduct.setMain_image(mainImage);
             newProduct.setKeyword(keyword);
             newProduct.setDetailImage(detailImage);
-            newProduct.setPeriod(period);
+            newProduct.setSaleStartDate(saleStartDate);
+            newProduct.setSaleEndDate(saleEndDate);
             newProduct.setCategory(category);
             newProduct.setViewCount(0); // 초기 viewCount 설정
             newProduct.setCreatedAt(new Date()); // 현재 시간 설정
@@ -113,7 +115,8 @@ public class  SaleProductController {
             @RequestParam(required = false) String mainImage,
             @RequestParam(required = false) List<String> keyword,
             @RequestParam(required = false) List<String> detailImage,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date period,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleStartDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleEndDate,
             @RequestParam(required = false) String category
     ) {
 
@@ -140,8 +143,10 @@ public class  SaleProductController {
                 product.setDetailImage(detailImage);
             if (description != null)
                 product.setDescription(description);
-            if (period != null)
-                product.setPeriod(period);
+            if (saleStartDate != null)
+                product.setSaleStartDate(saleStartDate);
+            if (saleEndDate != null)
+                product.setSaleEndDate(saleEndDate);
             if (subTitle != null)
                 product.setSubTitle(subTitle);
             if (subDescription != null)
