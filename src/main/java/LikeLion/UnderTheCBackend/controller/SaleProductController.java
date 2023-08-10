@@ -6,10 +6,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -28,21 +30,45 @@ public class  SaleProductController {
         @Operation(summary = "판매 상품 추가", description = "Product 테이블에 상품 정보 추가", responses = {
                 @ApiResponse(responseCode = "200", description = "성공")
         })
-        public Product addByProductnName(@RequestBody Product productRequest) {
+        public Product addByProductnName(
+                @RequestParam Long sellerId,
+                @RequestParam String name,
+                @RequestParam(required = false) String subTitle,
+                @RequestParam(required = false) BigDecimal price,
+                @RequestParam(required = false) String description,
+                @RequestParam(required = false) String subDescription,
+                @RequestParam(required = false) String mainImage,
+                @RequestParam(required = false) List<String> keyword,
+                @RequestParam(required = false) List<String> detailImage,
+                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date period,
+                @RequestParam(required = false) String category
+        ) {
             //로그인 정보 왜래키로 받아 Product테이블의 seller_id에 set 필요
             //로그인 정보 예외처리 필요
 
-
-            //검색 조건으로 사용할 productName
-            String productName = productRequest.getName();
             //같은 이름의 상품은 생성 불가
-            Optional<Product> existingProduct = productRepository.findByName(productName);
+            Optional<Product> existingProduct = productRepository.findByName(name);
             if (existingProduct.isPresent()) {
                 // 이미 해당 이름의 상품이 존재하는 경우 예외 처리
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "같은 이름의 상품이 이미 존재합니다.");
             }
-            productRepository.save(productRequest);
-            return productRequest;
+            Product newProduct = new Product();
+            newProduct.setSeller_id(sellerId);
+            newProduct.setName(name);
+            newProduct.setSubTitle(subTitle);
+            newProduct.setPrice(price);
+            newProduct.setDescription(description);
+            newProduct.setSubDescription(subDescription);
+            newProduct.setMain_image(mainImage);
+            newProduct.setKeyword(keyword);
+            newProduct.setDetailImage(detailImage);
+            newProduct.setPeriod(period);
+            newProduct.setCategory(category);
+            newProduct.setViewCount(0); // 초기 viewCount 설정
+            newProduct.setCreatedAt(new Date()); // 현재 시간 설정
+
+            productRepository.save(newProduct);
+            return newProduct;
         }
 
             @GetMapping("/view") //조회수
@@ -78,7 +104,17 @@ public class  SaleProductController {
     })
     public Product updateProduct(
             @PathVariable("id") Long productId,
-            @RequestBody Product productRequest
+            @RequestParam Long sellerId,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String subTitle,
+            @RequestParam(required = false) BigDecimal price,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String subDescription,
+            @RequestParam(required = false) String mainImage,
+            @RequestParam(required = false) List<String> keyword,
+            @RequestParam(required = false) List<String> detailImage,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date period,
+            @RequestParam(required = false) String category
     ) {
 
         Optional<Product> optionalProduct = productRepository.findById(productId);
@@ -86,34 +122,36 @@ public class  SaleProductController {
             Product product = optionalProduct.get();
 
             // 판매 상품 객체에 productRequest로부터 값을 업데이트합니다.
-            if (productRequest.getName() != null) {
-                String productName = productRequest.getName();
-                Optional<Product> existingProduct = productRepository.findByName(productName);
-                if (product.getId()!=existingProduct.get().getId() && existingProduct.isPresent()) {
+            if (name != null) {
+                Optional<Product> existingProduct = productRepository.findByName(name);
+                if (existingProduct.isPresent() && !product.getId().equals(existingProduct.get().getId())) {
                     // 이미 해당 이름의 상품이 존재하는 경우 예외 처리
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "같은 이름의 상품이 이미 존재합니다.");
                 }
-                product.setName(productRequest.getName());
+                product.setName(name);
             }
-            if (productRequest.getCategory() != null)
-                product.setCategory(productRequest.getCategory());
-            if (productRequest.getPrice() != null)
-                product.setPrice(productRequest.getPrice());
-            if (productRequest.getKeyword() !=null)
-                product.setKeyword(productRequest.getKeyword());
-            if (productRequest.getDescription() !=null)
-                product.setDescription(productRequest.getDescription());
-            if (productRequest.getPeriod() !=null)
-                product.setPeriod(productRequest.getPeriod());
-            if (productRequest.getSubTitle() !=null)
-                product.setSubTitle(productRequest.getSubTitle());
-            if (productRequest.getSubDescription() !=null)
-                product.setSubDescription(productRequest.getSubDescription());
-            if (productRequest.getMain_image()!=null) //이미지 관련 DB접근은 수정 필요함
-                product.setMain_image(product.getMain_image());
+            if (category != null)
+                product.setCategory(category);
+            if (price != null)
+                product.setPrice(price);
+            if (keyword != null)
+                product.setKeyword(keyword);
+            if (detailImage != null)
+                product.setDetailImage(detailImage);
+            if (description != null)
+                product.setDescription(description);
+            if (period != null)
+                product.setPeriod(period);
+            if (subTitle != null)
+                product.setSubTitle(subTitle);
+            if (subDescription != null)
+                product.setSubDescription(subDescription);
+            if (mainImage != null) //이미지 관련 DB접근은 수정 필요함
+                product.setMain_image(mainImage);
+
             productRepository.save(product);
             return product;
-        } else {
+        }else {
             //예외처리
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 ID의 상품을 찾을 수 없습니다.");
         }
