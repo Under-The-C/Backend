@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "product")
@@ -40,11 +41,16 @@ public class Product {
     @Column(length = 255)
     private String main_image; //image 저장방법 확인 후 수정필요함
 
-    @Column(length = 255)
-    private String keyword;
+    @Column(length = 255, name="detail_image")
+    @ElementCollection
+    private List<String> detailImage; //image 저장방법 확인 후 수정필요함
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")//Date타입 포맷 변경
+    @Column(length = 255)
+    @ElementCollection
+    private List<String> keyword;
+
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy.MM.dd")
+    @DateTimeFormat(pattern = "yyyy.MM.dd")//Date타입 포맷 변경
     private Date period;
 
     @Column(length = 255)
@@ -54,8 +60,8 @@ public class Product {
     private int viewCount;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")//Date타입 포맷 변경
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy.MM.dd")
+    @DateTimeFormat(pattern = "yyyy.MM.dd")//Date타입 포맷 변경
     @Column(name="created_at")
     private Date createdAt;
 }
