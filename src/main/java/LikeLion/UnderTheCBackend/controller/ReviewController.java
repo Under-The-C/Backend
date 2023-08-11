@@ -38,7 +38,7 @@ public class  ReviewController {
             @RequestParam Long buyerId,
             @RequestParam int point,
             @RequestParam String description,
-            @RequestParam List<String> reviewImageUrls
+            @RequestParam List<String> reviewImage
     ){
         Review newReview = new Review();
         newReview.setBuyer_id(buyerId);
@@ -47,10 +47,10 @@ public class  ReviewController {
 
         // 이미지 URL 리스트에서 ReviewImage 엔티티를 생성합니다.
         List<ReviewImage> reviewImages = new ArrayList<>();
-        for (String imageUrl : reviewImageUrls) {
-            ReviewImage reviewImage = new ReviewImage();
-            reviewImage.setImageUrl(imageUrl);
-            reviewImages.add(reviewImage);
+        for (String imageUrl : reviewImage) {
+            ReviewImage newreviewImage = new ReviewImage();
+            newreviewImage.setImageUrl(imageUrl);
+            reviewImages.add(newreviewImage);
         }
         newReview.setReviewImage(reviewImages);
 

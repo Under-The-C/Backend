@@ -43,8 +43,8 @@ public class  SaleProductController {
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String subDescription,
             @RequestParam(required = false) String mainImage,
-            @RequestParam(required = false) List<String> keywords,
-            @RequestParam(required = false) List<String> productImageUrls,
+            @RequestParam(required = false) List<String> keyword,
+            @RequestParam(required = false) List<String> detailImage,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleStartDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleEndDate,
             @RequestParam(required = false) String category
@@ -67,16 +67,16 @@ public class  SaleProductController {
         newProduct.setSubDescription(subDescription);
         newProduct.setMain_image(mainImage);
         List<ProductKeyword> keywordEntities = new ArrayList<>();
-        for (String keywordStr : keywords) {
-            ProductKeyword keyword = new ProductKeyword();
-            keyword.setKeyword(keywordStr);
-            keywordEntities.add(keyword);
+        for (String keywordStr : keyword) {
+            ProductKeyword keywords = new ProductKeyword();
+            keywords.setKeyword(keywordStr);
+            keywordEntities.add(keywords);
         }
         newProduct.setKeywords(keywordEntities);
 
         // 이미지 URL 리스트에서 ReviewImage 엔티티를 생성합니다.
         List<ProductDetailImage> detailImages = new ArrayList<>();
-        for (String imageUrl : productImageUrls) {
+        for (String imageUrl : detailImage) {
             ProductDetailImage productDetailImage = new ProductDetailImage();
             productDetailImage.setImageUrl(imageUrl);
             detailImages.add(productDetailImage);
