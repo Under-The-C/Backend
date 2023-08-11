@@ -3,24 +3,26 @@ package LikeLion.UnderTheCBackend.controller;
 
 import LikeLion.UnderTheCBackend.dto.KakaoTokenResponse;
 import LikeLion.UnderTheCBackend.dto.KakaoUserInfoResponse;
-import LikeLion.UnderTheCBackend.service.UserService;
 import LikeLion.UnderTheCBackend.utils.KakaoTokenJsonData;
 import LikeLion.UnderTheCBackend.utils.KakaoUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
 @Slf4j
 @Tag(name = "OAuth API", description = "카카오 OAuth API")
 @RequestMapping("/login/oauth2")
 public class OAuthController {
     private final KakaoTokenJsonData kakaoTokenJsonData;
     private final KakaoUserInfo kakaoUserInfo;
+
+    public OAuthController(KakaoTokenJsonData kakaoTokenJsonData, KakaoUserInfo kakaoUserInfo) {
+        this.kakaoTokenJsonData = kakaoTokenJsonData;
+        this.kakaoUserInfo = kakaoUserInfo;
+    }
 
     @PostMapping("/code/kakao")
     @Operation(summary = "카카오 OAuth API", description = "인가 코드를 이용해 토큰을 받는 API", responses = {
