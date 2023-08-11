@@ -1,6 +1,6 @@
 package LikeLion.UnderTheCBackend.utils;
 
-import LikeLion.UnderTheCBackend.dto.KakaoBuyerInfoResponse;
+import LikeLion.UnderTheCBackend.dto.KakaoUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -8,19 +8,20 @@ import reactor.core.publisher.Flux;
 
 @RequiredArgsConstructor
 @Component
-public class KakaoBuyerInfo {
+public class KakaoUserInfo {
     private final WebClient webClient;
-    private static final String BUYER_INFO_URI = "https://kapi.kakao.com/v2/buyer/me";
+    private static final String User_INFO_URI = "https://kapi.kakao.com/v2/user/me";
 
-    public KakaoBuyerInfoResponse getBuyerInfo(String token) {
-        String uri = BUYER_INFO_URI;
+    public KakaoUserInfoResponse getUserInfo(String token) {
+        String uri = User_INFO_URI;
 
-        Flux<KakaoBuyerInfoResponse> response = webClient.get()
+        Flux<KakaoUserInfoResponse> response = webClient.get()
                 .uri(uri)
                 .header("Authorization", "Bearer " + token)
                 .retrieve()
-                .bodyToFlux(KakaoBuyerInfoResponse.class);
+                .bodyToFlux(KakaoUserInfoResponse.class);
 
         return response.blockFirst();
     }
 }
+

@@ -11,33 +11,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Seller {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false)
-    private Long id;
-
-    @Column
-    private String name;
-
-    @Column
-    private String call;
-
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    @Column
-    private String address;
-
-    @Column
-    private byte[] photo;
-
-    @Column
-    private byte[] certificate;
-
+@DiscriminatorValue("SELLER")
+public class Seller extends User {
     @Builder
-    public Seller(Long id, String email) {
-        this.id = id;
-        this.email = email;
+    public Seller(Long id, String name, String nickname, String call, String email, String address, String detailAddress, String role, String photo, String certificate) {
+        super(id, name, nickname, call, email, address, detailAddress, role, photo, certificate);
     }
 }

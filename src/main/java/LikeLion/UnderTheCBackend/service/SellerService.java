@@ -15,13 +15,21 @@ public class SellerService {
     private final SellerRepository sellerRepository;
 
     @Transactional
-    public Long createSeller(String email) {
+    public Long createSeller(String name, String nickname, String call, String email, String address, String detailAddress, String role, String photo, String certificate) {
         Seller seller = Seller.builder()
+                .name(name)
+                .nickname(nickname)
+                .call(call)
                 .email(email)
+                .address(address)
+                .address(detailAddress)
+                .role(role)
+                .photo(photo)
+                .certificate(certificate)
                 .build();
 
         sellerRepository.save(seller);
-        log.info("Success");
+        log.info("success");
         return seller.getId();
     }
 }
