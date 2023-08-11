@@ -12,19 +12,15 @@ import lombok.Setter;
 public class PaymentRequest {
     @NonNull
     private String imp_uid;
-
+    
     @NonNull
     private String merchant_uid;
 
-    @NonNull
     private String name;
 
-    @NonNull
     private String callNumber;
 
-    @NonNull
     private String address;
 
-    @NonNull
     private String method;
 }
