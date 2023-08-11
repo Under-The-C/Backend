@@ -2,6 +2,7 @@ package LikeLion.UnderTheCBackend.repository;
 
 import LikeLion.UnderTheCBackend.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,11 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
     //**OrderBy 앞에는 And를 붙이지 않음**
+
+    @Query("SELECT DISTINCT p FROM Product p LEFT JOIN FETCH p.detailImage")
+    List<Product> findAllWithDetailImage();
+    @Query("SELECT DISTINCT p FROM Product p LEFT JOIN FETCH p.keywords")
+    List<Product> findAllWithKeywords();
 
     Optional<Product> findByName(String productName);
     List<Product> findAllByNameContaining(String partialName);
@@ -25,15 +31,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findAllByNameContainingAndCategory(String productName, String category);
 
-    List<Product> findAllByNameContainingAndKeywordContainingOrderByCreatedAtDesc(String productName, String keyword);
+    List<Product> findAllByNameContainingAndKeywordsContainingOrderByCreatedAtDesc(String productName, String keywords);
 
-    List<Product> findAllByNameContainingAndKeywordContainingOrderByPrice(String productName, String keyword);
+    List<Product> findAllByNameContainingAndKeywordsContainingOrderByPrice(String productName, String keywords);
 
-    List<Product> findAllByNameContainingAndKeywordContaining(String productName, String keyword);
+    List<Product> findAllByNameContainingAndKeywordsContaining(String productName, String keywords);
 
     List<Product> findAllByNameContainingOrderByViewCountDesc(String productName);
 
     List<Product> findAllByNameContainingAndCategoryOrderByViewCountDesc(String productName, String category);
 
-    List<Product> findAllByNameContainingAndKeywordContainingOrderByViewCountDesc(String productName, String keyword);
+    List<Product> findAllByNameContainingAndKeywordsContainingOrderByViewCountDesc(String productName, String keywords);
 }
