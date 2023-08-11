@@ -1,6 +1,6 @@
 package LikeLion.UnderTheCBackend.service;
 
-import LikeLion.UnderTheCBackend.dto.PaymentReq;
+import LikeLion.UnderTheCBackend.dto.PaymentRequest;
 import LikeLion.UnderTheCBackend.dto.WebHookJson;
 import LikeLion.UnderTheCBackend.entity.*;
 import LikeLion.UnderTheCBackend.repository.PaymentRepository;
@@ -29,20 +29,20 @@ import java.util.UUID;
 
 @Service
 public class PaymentService {
-    @Value("impKey")
-    private String impKey;
-    @Value("impSecretKey")
-    private String impSecret;
-    final private IamportClient client;
-    private PaymentRepository paymentRepository;
-    private ProductRepository productRepository;
-    private ShoppingHistoryRepository shoppingHistoryRepository;
-    private ShoppingListRepository shoppingListRepository;
+    private final String impKey;
+    private final String impSecret;
+    private final IamportClient client;
+    private final PaymentRepository paymentRepository;
+    private final ProductRepository productRepository;
+    private final ShoppingHistoryRepository shoppingHistoryRepository;
+    private final ShoppingListRepository shoppingListRepository;
 
     @Autowired
-    PaymentService(PaymentRepository paymentRepository, ProductRepository productRepository,
+    PaymentService(@Value("impKey") String impKey, @Value("impSecretKey") String impSecret, PaymentRepository paymentRepository, ProductRepository productRepository,
                    ShoppingListRepository shoppingListRepository, ShoppingHistoryRepository shoppingHistoryRepository) {
-        this.client = new IamportClient(impKey, impSecret);
+        this.impKey = impKey;
+        this.impSecret = impSecret;
+        this.client = new IamportClient(this.impKey, this.impSecret);
         this.paymentRepository = paymentRepository;
         this.productRepository = productRepository;
         this.shoppingListRepository = shoppingListRepository;
@@ -85,11 +85,16 @@ public class PaymentService {
         return merchantUid;
     }
 
+    public boolean checkData(PaymentRequest data) {
+//        if
+        return true;
+    }
+
     public IamportResponse<Payment> paymentByImpUid(String imp_uid) throws IamportResponseException, IOException {
         return client.paymentByImpUid(imp_uid);
     }
 
-    public IamportResponse<Payment> completePayment(Buyer buyer, PaymentReq data) throws IamportResponseException, IOException {
+    public IamportResponse<Payment> completePayment(Buyer buyer, PaymentRequest data) throws IamportResponseException, IOException {
         /* imp_uid 값으로 결제내역 확인 */
         IamportResponse<Payment> iRPayment = client.paymentByImpUid(data.getImp_uid());
         Payment payment = iRPayment.getResponse();
@@ -114,7 +119,10 @@ public class PaymentService {
             client.cancelPaymentByImpUid(new CancelData(data.getImp_uid(), true));
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "결제 금액이 잘못 되었습니다.");
         }
-        
+
+        order.setName(data.getName());
+        order.setCallNumber(data.getCallNumber());
+        order.setAddress(data.getAddress());
         order.setStatus("결제완료");
         paymentRepository.save(order);
 
@@ -133,7 +141,7 @@ public class PaymentService {
         return iRPayment;
     }
 
-    public IamportResponse<Payment> cancelPayment(Buyer buyer, PaymentReq data) throws IamportResponseException, IOException {
+    public IamportResponse<Payment> cancelPayment(Buyer buyer, PaymentRequest data) throws IamportResponseException, IOException {
         List<ShoppingHistory> historyList = shoppingHistoryRepository.findByBuyerId_IdAndImpUid(buyer.getId(), data.getImp_uid());
         if (historyList.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "data가 올바르지 않습니다.");
