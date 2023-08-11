@@ -102,28 +102,28 @@ public class SearchProductController {
         List<Product> product;
         if (sortBy.equals("최신순")) {
             if (keyword != null && !keyword.isEmpty()) {
-                product = productRepository.findAllByNameContainingAndKeywordContainingOrderByCreatedAtDesc(productName, keyword);
+                product = productRepository.findAllByNameContainingAndKeywordsContainingOrderByCreatedAtDesc(productName, keyword);
             } else {
                 product = productRepository.findAllByNameContainingOrderByCreatedAtDesc(productName);
             }
             return product;
         } else if (sortBy.equals("가격순")) {
             if (keyword != null && !keyword.isEmpty()) {
-                product = productRepository.findAllByNameContainingAndKeywordContainingOrderByPrice(productName, keyword);
+                product = productRepository.findAllByNameContainingAndKeywordsContainingOrderByPrice(productName, keyword);
             } else {
                 product = productRepository.findAllByNameContainingOrderByPrice(productName);
             }
             return product;
         } else if (sortBy.equals("조회순")) {
             if (keyword != null && !keyword.isEmpty()) {
-                product = productRepository.findAllByNameContainingAndKeywordContainingOrderByViewCountDesc(productName, keyword);
+                product = productRepository.findAllByNameContainingAndKeywordsContainingOrderByViewCountDesc(productName, keyword);
             } else {
                 product = productRepository.findAllByNameContainingOrderByViewCountDesc(productName);
             }
             return product;
         }else {
             if (keyword != null && !keyword.isEmpty()) {
-                product = productRepository.findAllByNameContainingAndKeywordContaining(productName, keyword);
+                product = productRepository.findAllByNameContainingAndKeywordsContaining(productName, keyword);
             }
             else{
                 product = productRepository.findAllByNameContaining(productName);

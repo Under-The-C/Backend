@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -41,13 +42,13 @@ public class Product {
     @Column(length = 255)
     private String main_image; //image 저장방법 확인 후 수정필요함
 
-    @Column(length = 255, name="detail_image")
-    @ElementCollection
-    private List<String> detailImage; //image 저장방법 확인 후 수정필요함
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "product_id")
+    private List<ProductDetailImage> detailImage;
 
-    @Column(length = 255)
-    @ElementCollection
-    private List<String> keyword;
+    @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "product_id")
+    private List<ProductKeyword> keywords = new ArrayList<>();
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")//Date타입 포맷 변경
@@ -61,7 +62,7 @@ public class Product {
     private String category;
 
     @Column(name="view_count")
-    private int viewCount;
+    private int viewCount =0;
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
