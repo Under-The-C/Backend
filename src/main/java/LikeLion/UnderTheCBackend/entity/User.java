@@ -30,7 +30,7 @@ public class User {
     private String address;
     @Column
     private String detailAddress;
-    @Column
+    @Column(nullable = false)
     private String role;
     @Column
     private String photo;
