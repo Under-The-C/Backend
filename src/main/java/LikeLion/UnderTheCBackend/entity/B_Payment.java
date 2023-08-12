@@ -14,8 +14,8 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Table(name = "payment")
 public class B_Payment {
-    @Column(nullable = false)
     @Id
+    @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -23,16 +23,16 @@ public class B_Payment {
     @Column(name = "merchant_uid", nullable = false, columnDefinition = "varchar(55)", unique = true)
     private String merchantUid;
 
-    @Column(nullable = false, columnDefinition = "varchar(20)")
-    private String name;
+    @Nullable
+    @Column(columnDefinition = "varchar(20)")
+    String status;
 
     @NonNull
     @Column(nullable = false, columnDefinition = "decimal(64,0)")
     BigDecimal amount;
 
-    @Nullable
-    @Column(columnDefinition = "varchar(20)")
-    String status;
+    @Column(nullable = false, columnDefinition = "varchar(20)")
+    private String name;
 
     @Column(name = "call_number", nullable = false, columnDefinition = "varchar(20)")
     private String callNumber;
