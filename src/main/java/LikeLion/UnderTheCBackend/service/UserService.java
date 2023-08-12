@@ -6,8 +6,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
 
 @Service
 @Getter
@@ -19,21 +23,30 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Long createUser(String name, String nickname, String call, String email, String address, String detailAddress, String role, String photo, String certificate) {
+    public Long createUser(String name, String nickname, String phone, String email, String address, String detailAddress, String role, String profile, String certificate) {
         User user = User.builder()
                 .name(name)
                 .nickname(nickname)
-                .call(call)
+                .phone(phone)
                 .email(email)
                 .address(address)
                 .detailAddress(detailAddress)
                 .role(role)
-                .photo(photo)
+                .profile(profile)
                 .certificate(certificate)
                 .build();
 
         userRepository.save(user);
         log.info("success");
         return user.getId();
+    }
+    @Transactional
+    public void deleteUser(String email) {
+        Optional<User> user = Optional.ofNullable(userRepository.findByEmail(email));
+        if (user.isPresent()) {
+            deleteUser(email);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
+        }
     }
 }
