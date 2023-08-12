@@ -89,7 +89,7 @@ public class SearchProductController {
         return product;
     }
     @GetMapping("/keyword")
-    @Operation(summary = "판매 상품 키워드 검색 (최신순 or 조회순 or 리뷰순 or 가격순)", description = "Product 테이블에서 Name으로 검색하여 " +
+    @Operation(summary = "판매 상품 키워드 검색(현재 제대로 작동하지 않습니다 추후 수정 예정) (최신순 or 조회순 or 리뷰순 or 가격순)", description = "Product 테이블에서 Name으로 검색하여 " +
             "요청한 keyword를 포함한 정렬된 Product 객체 반환 (리뷰순 추가 예정)", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
@@ -102,28 +102,28 @@ public class SearchProductController {
         List<Product> product;
         if (sortBy.equals("최신순")) {
             if (keyword != null && !keyword.isEmpty()) {
-                product = productRepository.findAllByNameContainingAndKeywordContainingOrderByCreatedAtDesc(productName, keyword);
+                product = productRepository.findAllByNameContainingAndKeywordsContainingOrderByCreatedAtDesc(productName, keyword);
             } else {
                 product = productRepository.findAllByNameContainingOrderByCreatedAtDesc(productName);
             }
             return product;
         } else if (sortBy.equals("가격순")) {
             if (keyword != null && !keyword.isEmpty()) {
-                product = productRepository.findAllByNameContainingAndKeywordContainingOrderByPrice(productName, keyword);
+                product = productRepository.findAllByNameContainingAndKeywordsContainingOrderByPrice(productName, keyword);
             } else {
                 product = productRepository.findAllByNameContainingOrderByPrice(productName);
             }
             return product;
         } else if (sortBy.equals("조회순")) {
             if (keyword != null && !keyword.isEmpty()) {
-                product = productRepository.findAllByNameContainingAndKeywordContainingOrderByViewCountDesc(productName, keyword);
+                product = productRepository.findAllByNameContainingAndKeywordsContainingOrderByViewCountDesc(productName, keyword);
             } else {
                 product = productRepository.findAllByNameContainingOrderByViewCountDesc(productName);
             }
             return product;
         }else {
             if (keyword != null && !keyword.isEmpty()) {
-                product = productRepository.findAllByNameContainingAndKeywordContaining(productName, keyword);
+                product = productRepository.findAllByNameContainingAndKeywordsContaining(productName, keyword);
             }
             else{
                 product = productRepository.findAllByNameContaining(productName);
