@@ -25,11 +25,12 @@ import java.io.IOException;
 public class SecurityConfig {
 
     private static final String[] WHITE_LIST = {
-            "/",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-resources/**",
-            "/api/v1/**"
+            "/api/v1/**",
+            "/login/oauth2/**",
+            "/image/**"
     };
 
     @Bean
