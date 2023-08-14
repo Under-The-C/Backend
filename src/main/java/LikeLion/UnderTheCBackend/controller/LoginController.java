@@ -35,10 +35,10 @@ public class LoginController {
         }
 
         Optional<User> result = Optional.ofNullable(this.userRepository.findByEmail(email));
-        User loginUser = result.orElse(null);
+        User user = result.orElse(null);
 
         HttpSession session = request.getSession();
-        session.setAttribute("loginUser", loginUser);
+        session.setAttribute("user", user.getId());
 
         return "sucess";
     }
@@ -52,7 +52,7 @@ public class LoginController {
         if (session == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
         }
-        User loginUser = (User) session.getAttribute("loginUser");
+        User user = (User) session.getAttribute("user");
         session.invalidate();
         return "success";
     }
