@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "product")
+@Table(name = "review")
 @Getter
 @Setter
 public class Review {
@@ -20,7 +20,10 @@ public class Review {
     @Column(length = 20)
     private Long id;
 
-    private Long buyer_id;
+    @Column(name="buyer_id")
+    private Long buyerId;
+
+    private Long productId;//**추가된 요소**
 
     @Column(length = 20)
     private int point=0;
@@ -28,9 +31,9 @@ public class Review {
     @Column(length = 255)
     private String description;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "review_id")
-    private List<ReviewImage> reviewImage;
+
+    @Column(name = "review_Image")
+    private String reviewImage; //한장으로 변경
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")

@@ -43,11 +43,11 @@ public class Product {
     private String main_image; //image 저장방법 확인 후 수정필요함
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "detail_image")
     private List<ProductDetailImage> detailImage;
 
     @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_keyword")
     private List<ProductKeyword> keywords = new ArrayList<>();
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
@@ -63,6 +63,15 @@ public class Product {
 
     @Column(name="view_count")
     private int viewCount =0;
+
+    @Column(name="review_count") //**추가된 요소**
+    private int reviewCount =0;
+
+    @Column(name = "average_review_point")
+    private Double averageReviewPoint = 0.0;
+
+
+
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
