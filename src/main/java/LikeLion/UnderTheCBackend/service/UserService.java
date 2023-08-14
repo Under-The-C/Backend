@@ -49,4 +49,14 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
         }
     }
+
+    @Transactional
+    public User findUser(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
+        }
+    }
 }

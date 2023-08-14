@@ -47,7 +47,8 @@ public class B_Payment {
     @Column(updatable = false)
     private Date created_at;
 
+    @NonNull
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name="buyer_id", referencedColumnName = "id")
-    private Buyer buyerId;
+    @JoinColumn(name="user_id", referencedColumnName = "id")
+    private User UserId;
 }
