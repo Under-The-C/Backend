@@ -42,4 +42,26 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByNameContainingAndCategoryOrderByViewCountDesc(String productName, String category);
 
     List<Product> findAllByNameContainingAndKeywordsContainingOrderByViewCountDesc(String productName, String keywords);
+
+    List<Product> findAllByNameContainingOrProductKeywordsKeywordContainingOrderByCreatedAtDesc(String productName, String productName1);
+
+    List<Product> findAllByNameContainingOrKeywordsKeywordContainingOrderByCreatedAtDesc(String productName, String productName1);
+
+    List<Product> findAllByNameContainingOrKeywordsKeywordContainingOrderByPrice(String search, String search1);
+
+    List<Product> findAllByNameContainingOrKeywordsKeywordContainingOrderByViewCountDesc(String search, String search1);
+
+    List<Product> findAllByNameContainingOrKeywordsKeywordContaining(String search, String search1);
+
+    List<Product> findAllByNameContainingOrKeywordsKeywordContainingOrderByReviewCountDesc(String search, String search1);
+
+    List<Product> findAllByNameContainingOrKeywordsKeywordContainingAndCategoryOrderByPrice(String search, String search1, String category);
+
+    List<Product> findAllByNameContainingOrKeywordsKeywordContainingAndCategoryOrderByViewCountDesc(String search, String search1, String category);
+
+    List<Product> findAllByNameContainingOrKeywordsKeywordContainingAndCategory(String search, String search1, String category);
+
+    List<Product> findAllByNameContainingOrKeywordsKeywordContainingAndCategoryOrderByCreatedAtDesc(String search, String search1, String category);
+
+    List<Product> findAllByNameContainingOrKeywordsKeywordContainingAndCategoryOrderByReviewCountDesc(String search, String search1, String category);
 }
