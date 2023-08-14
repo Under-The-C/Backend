@@ -32,7 +32,7 @@ public class ShoppingList {
     @NonNull
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="product_id", referencedColumnName = "id")
-    private Product ProductId;
+    private Product productId;
 
     @NonNull
     @Column(nullable = false)

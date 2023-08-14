@@ -45,7 +45,7 @@ public class ShoppingService {
 
     @Transactional
     public ShoppingList deleteByProductId(Long userId, Long productId, Integer count) {
-        Optional<ShoppingList> optShoppingList = shoppingListRepository.findByUserId_IdAndProductId(userId, productId);
+        Optional<ShoppingList> optShoppingList = shoppingListRepository.findByUserId_IdAndProductId_Id(userId, productId);
         ShoppingList shoppingList = optShoppingList.orElseThrow(() ->
                 new ResponseStatusException(BAD_REQUEST, "해당 상품이 존재하지 않습니다."));
         if (shoppingList.getCount() > count) {
