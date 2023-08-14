@@ -55,7 +55,7 @@
                         "reserveNum" :  456456 // 예약정보를 담고있는번호
                     });
                     $.ajax({
-                        url: 'https://localhost/api/v1/payment/verify/' + rsp.imp_uid,
+                        url: 'https://localhost/api/v1/BPayment/verify/' + rsp.imp_uid,
                         type: "POST",
                         dataType: 'json',
                         contentType: 'application/json',

@@ -12,12 +12,12 @@ import java.util.Date;
 @Getter
 @Setter
 @RequiredArgsConstructor
-@Table(name = "order")
-public class Order {
+@Table(name = "payment")
+public class B_Payment {
+    @Column(nullable = false)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, columnDefinition = "int")
-    private Integer id;
+    private Long id;
 
     @NonNull
     @Column(name = "merchant_uid", nullable = false, columnDefinition = "varchar(55)", unique = true)
@@ -47,17 +47,7 @@ public class Order {
     @Column(updatable = false)
     private Date created_at;
 
-    /**  아직 테이블이 안만들어져서 주석처리 */
-//    @ManyToOne(cascade = CascadeType.REMOVE)
-//    @JoinColumn(name="buyer_id", referencedColumnName = "id")
-//    private Buyer buyerId;
-
-    @NonNull
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name="product_id", referencedColumnName = "id")
-    private Product productId;
-
-    public Order() {
-
-    }
+    @JoinColumn(name="buyer_id", referencedColumnName = "id")
+    private Buyer buyerId;
 }

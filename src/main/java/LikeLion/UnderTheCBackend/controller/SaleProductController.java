@@ -49,9 +49,17 @@ public class  SaleProductController {
             @Operation(summary = "판매 상품 찾기", description = "Product 테이블의 id로 특정 상품 반환", responses = {
                     @ApiResponse(responseCode = "200", description = "성공")
             })
-            public Optional<Product> findById(@RequestParam("id") int productId) {
-                Optional<Product> product = null;
-                product = productRepository.findById(productId);
+
+            public Optional<Product> findById(@RequestParam("id") Long productId) {
+                Optional<Product> product = productRepository.findById(productId);
+
+                if (product.isPresent()) {
+                    Product existingProduct = product.get();
+                    existingProduct.setViewCount(existingProduct.getViewCount() + 1); // viewCount를 1 더해줌
+                    productRepository.save(existingProduct); // 변경된 상품 정보 저장
+                }
+
+
                 return product;
             }
             @GetMapping("/view_all")
@@ -69,7 +77,7 @@ public class  SaleProductController {
             @ApiResponse(responseCode = "200", description = "성공")
     })
     public Product updateProduct(
-            @PathVariable("id") int productId,
+            @PathVariable("id") Long productId,
             @RequestBody Product productRequest
     ) {
 
@@ -81,7 +89,7 @@ public class  SaleProductController {
             if (productRequest.getName() != null) {
                 String productName = productRequest.getName();
                 Optional<Product> existingProduct = productRepository.findByName(productName);
-                if (existingProduct.isPresent()) {
+                if (product.getId()!=existingProduct.get().getId() && existingProduct.isPresent()) {
                     // 이미 해당 이름의 상품이 존재하는 경우 예외 처리
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "같은 이름의 상품이 이미 존재합니다.");
                 }
@@ -97,6 +105,10 @@ public class  SaleProductController {
                 product.setDescription(productRequest.getDescription());
             if (productRequest.getPeriod() !=null)
                 product.setPeriod(productRequest.getPeriod());
+            if (productRequest.getSubTitle() !=null)
+                product.setSubTitle(productRequest.getSubTitle());
+            if (productRequest.getSubDescription() !=null)
+                product.setSubDescription(productRequest.getSubDescription());
             if (productRequest.getMain_image()!=null) //이미지 관련 DB접근은 수정 필요함
                 product.setMain_image(product.getMain_image());
             productRepository.save(product);
@@ -110,7 +122,7 @@ public class  SaleProductController {
         @Operation(summary = "판매 상품 삭제", description = "Product 테이블에 지정된 id로 판매 상품 삭제", responses = {
                 @ApiResponse(responseCode = "200", description = "성공")
         })
-        public Product deleteById(@RequestParam("evaluationId") int productId) {
+        public Product deleteById(@RequestParam("evaluationId") Long productId) {
 
             //String sellerId = seller.getId(); seller테이블 받으면 구현 재개
 
