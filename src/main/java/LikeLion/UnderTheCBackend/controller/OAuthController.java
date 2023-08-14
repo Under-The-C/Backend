@@ -61,11 +61,11 @@ public class OAuthController {
         redirectAttributes.addAttribute("email", email);
 
         if(isUserEmailExist(userInfo.getKakao_account().getEmail())) {
-            return "redirect:/api/vi/login";
+            return "redirect:/api/v1/login";
         }
         else {
             redirectAttributes.addAttribute("profile", profile);
-            return "redirect:/api/vi/user/add";
+            return "redirect:/api/v1/user/add";
         }
     }
 }
