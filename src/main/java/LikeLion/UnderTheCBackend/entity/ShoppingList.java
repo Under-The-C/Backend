@@ -2,6 +2,8 @@ package LikeLion.UnderTheCBackend.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -10,6 +12,7 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
+@RequiredArgsConstructor
 @Table(name = "shopping_list")
 public class ShoppingList {
     @Id
@@ -21,11 +24,17 @@ public class ShoppingList {
     @Column(updatable = false)
     private Date created_at;
 
+    @NonNull
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name="buyer_id", referencedColumnName = "id")
-    private Buyer buyerId;
+    @JoinColumn(name="user_id", referencedColumnName = "id")
+    private User userId;
 
+    @NonNull
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="product_id", referencedColumnName = "id")
     private Product ProductId;
+
+    @NonNull
+    @Column(nullable = false)
+    private Integer count;
 }

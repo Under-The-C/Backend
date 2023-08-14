@@ -23,8 +23,8 @@ public class ShoppingHistory {
 
     @NonNull
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "buyer_id", referencedColumnName = "id")
-    private Buyer buyerId;
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User userId;
 
     @NonNull
     @ManyToOne(cascade = CascadeType.REMOVE)
@@ -32,11 +32,18 @@ public class ShoppingHistory {
     private Product productId;
 
     @NonNull
+    @Column(nullable = false)
+    private Integer count;
+
+    @NonNull
     @Column(nullable = false, columnDefinition = "varchar(10)")
     private String status;
 
     @Column(name = "imp_uid", nullable = false, columnDefinition = "varchar(20)")
     private String impUid;
+
+    @Column(name = "merchant_uid", nullable = false, columnDefinition = "varchar(20)")
+    private String merchantUid;
 
     @CreatedDate
     @Column(updatable = false)
