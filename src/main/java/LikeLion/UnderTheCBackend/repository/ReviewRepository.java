@@ -11,4 +11,9 @@ import java.util.Optional;
 public interface ReviewRepository extends JpaRepository<Review, Long>  {
     @Query("SELECT DISTINCT r FROM Review r LEFT JOIN FETCH r.reviewImage")
     List<Review> findAllWithReviewImage();
+    List<Review> findByProductId(Long productId);
+
+    List<Review> findAllByBuyerId(Long buyerId);
+
+    List<Review> findAllByProductId(Long productId);
 }

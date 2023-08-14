@@ -4,6 +4,7 @@ import LikeLion.UnderTheCBackend.entity.Product;
 import LikeLion.UnderTheCBackend.entity.Review;
 import LikeLion.UnderTheCBackend.entity.ReviewImage;
 import LikeLion.UnderTheCBackend.repository.ReviewRepository;
+import LikeLion.UnderTheCBackend.repository.ProductRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,9 +26,10 @@ import java.util.Optional;
 
 public class  ReviewController {
     ReviewRepository reviewRepository;
-
-    ReviewController(ReviewRepository reviewRepository) {
+    ProductRepository productRepository;
+    ReviewController(ReviewRepository reviewRepository, ProductRepository productRepository) {
         this.reviewRepository = reviewRepository;
+        this.productRepository = productRepository;
     }
 
     @PostMapping("/add")
@@ -36,28 +38,33 @@ public class  ReviewController {
     })
     public Review addByBuyerId(
             @RequestParam Long buyerId,
+            @RequestParam Long productId,
             @RequestParam int point,
             @RequestParam String description,
-            @RequestParam List<String> reviewImage
+            @RequestParam String reviewImage
     ){
         Review newReview = new Review();
-        newReview.setBuyer_id(buyerId);
+        newReview.setBuyerId(buyerId);
         newReview.setPoint(point);
+        newReview.setProductId(productId);
         newReview.setDescription(description);
-
-        // 이미지 URL 리스트에서 ReviewImage 엔티티를 생성합니다.
-        List<ReviewImage> reviewImages = new ArrayList<>();
-        for (String imageUrl : reviewImage) {
-            ReviewImage newreviewImage = new ReviewImage();
-            newreviewImage.setImageUrl(imageUrl);
-            reviewImages.add(newreviewImage);
-        }
-        newReview.setReviewImage(reviewImages);
-
+        newReview.setReviewImage(reviewImage);
         newReview.setCreatedAt(new Date()); // 현재 시간 설정
 
-        reviewRepository.save(newReview);
-        return newReview;
+        Review savedReview = reviewRepository.save(newReview); // 리뷰 저장 후 반환
+
+        // 해당 상품의 리뷰 추가 및 업데이트
+        Product product = productRepository.findById(productId).orElse(null);
+        if (product != null) {
+            List<Review> reviews = reviewRepository.findByProductId(productId);
+            double totalPoints = product.getAverageReviewPoint() * reviews.size();
+            totalPoints += point;
+            product.setAverageReviewPoint(totalPoints / (reviews.size() + 1)); // 평균 업데이트
+            product.setReviewCount(product.getReviewCount()+1);
+            productRepository.save(product);
+        }
+
+        return savedReview;
     }
     @GetMapping("/view_all")
     @Operation(summary = "리뷰 모두 찾기", description = "Review 테이블의 모든 리뷰 반환", responses = {
@@ -68,6 +75,27 @@ public class  ReviewController {
         review = reviewRepository.findAll();
         return review;
     }
+
+    @GetMapping("/view_by_buyer/{buyerId}")
+    @Operation(summary = "구매자가 작성한 리뷰 모두 찾기", description = "Review 테이블의 buyerId가 일치하는 리뷰 반환", responses = {
+            @ApiResponse(responseCode = "200", description = "성공")
+    })
+    public List<Review> findAllByBuyerId(@RequestParam("buyerId") Long buyerId){
+        List<Review> review = null;
+        review = reviewRepository.findAllByBuyerId(buyerId);
+        return review;
+    }
+
+    @GetMapping("/view_by_product/{productId}")
+    @Operation(summary = "해당 상품의 리뷰 모두 찾기", description = "Review 테이블의 productId가 일치하는 리뷰 반환", responses = {
+            @ApiResponse(responseCode = "200", description = "성공")
+    })
+    public List<Review> findAllByProductId(@RequestParam("productId") Long productId){
+        List<Review> review = null;
+        review = reviewRepository.findAllByProductId(productId);
+        return review;
+    }
+
     @DeleteMapping("/delete/{id}")
     @Operation(summary = "리뷰 삭제", description = "Review 테이블에 지정된 id로 리뷰 삭제", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
