@@ -69,10 +69,12 @@ public class OAuthController {
         log.info("회원 정보 입니다.{}",userInfo);
 
         String email = userInfo.getKakao_account().getEmail();
+        log.info("회원 이메일 입니다.{}",email);
 
         HttpHeaders headers = new HttpHeaders();
 
-        if(isUserEmailExist(userInfo.getKakao_account().getEmail())) {
+        if (isUserEmailExist(email)) {
+            log.info("이미 가입된 회원입니다.");
 //            headers.setLocation(URI.create(redirectReactUrl + "?email=" + email));
             if (request.getSession(false) != null) {
                 headers.setLocation(URI.create(redirectReactUrl));
@@ -88,13 +90,14 @@ public class OAuthController {
             }
             HttpSession session = request.getSession();
             session.setAttribute("user", user.getId());
+            log.info("session id: {}", session.getId());
 
             headers.setLocation(URI.create(redirectReactUrl + "?JSESSIONID=" + session.getId()));
-            return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }
         else {
+            log.info("가입되지 않은 회원입니다.");
             headers.setLocation(URI.create(redirectReactUrl + "signup-choose-role?email=" + email));
-            return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }
+        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 }
