@@ -4,6 +4,7 @@ import LikeLion.UnderTheCBackend.dto.KakaoTokenResponse;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,8 +24,8 @@ public class KakaoTokenJsonData {
     private static final String GRANT_TYPE = "authorization_code";
     private static final String CLIENT_ID = "be84e5c954c05f4d77886292167f2621";
 
-    public KakaoTokenResponse getToken(String code) {
-        String uri = TOKEN_URI + "?grant_type=" + GRANT_TYPE + "&client_id=" + CLIENT_ID + "&redirect_uri=" + REDIRECT_URI + "&code=" + code;
+    public KakaoTokenResponse getToken(String code, String redirectUrl) {
+        String uri = TOKEN_URI + "?grant_type=" + GRANT_TYPE + "&client_id=" + CLIENT_ID + "&redirect_uri=" + redirectUrl + "&code=" + code;
         System.out.println(uri);
 
         Flux<KakaoTokenResponse> response = webClient.post()

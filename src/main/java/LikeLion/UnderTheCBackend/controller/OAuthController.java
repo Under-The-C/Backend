@@ -56,9 +56,10 @@ public class OAuthController {
     @Operation(summary = "카카오 OAuth API", description = "인가 코드를 이용해 토큰을 받는 API", responses = {
             @ApiResponse(responseCode = "200", description = "OAuth 성공")
     })
-    public ResponseEntity<?> Oauth(@RequestParam("code") String code, RedirectAttributes redirectAttributes) {
+    public ResponseEntity<?> Oauth(@RequestParam("code") String code, RedirectAttributes redirectAttributes
+    , @RequestParam("redirectUrl") String redirectUrl) {
         log.info("인가 코드를 이용하여 토큰을 받습니다.");
-        KakaoTokenResponse kakaoTokenResponse = kakaoTokenJsonData.getToken(code); // Kakao OAuth 인가 코드를 토큰으로 교환하는 요청
+        KakaoTokenResponse kakaoTokenResponse = kakaoTokenJsonData.getToken(code, redirectUrl); // Kakao OAuth 인가 코드를 토큰으로 교환하는 요청
         log.info("토큰에 대한 정보입니다.{}",kakaoTokenResponse);
         KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(kakaoTokenResponse.getAccess_token());
         log.info("회원 정보 입니다.{}",userInfo);
