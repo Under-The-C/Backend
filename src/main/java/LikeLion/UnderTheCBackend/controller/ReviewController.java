@@ -49,7 +49,7 @@ public class  ReviewController {
             @RequestParam Long productId,
             @RequestParam int point,
             @RequestParam String description,
-            @RequestParam MultipartFile reviewImage
+            @RequestParam(required = false) MultipartFile reviewImage
     ) throws IOException {
         Review newReview = new Review();
         newReview.setBuyerId(buyerId);
