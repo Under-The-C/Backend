@@ -48,7 +48,7 @@ public class UserController {
     public User findMineById(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "findMineById: 로그인 되어 있지 않습니다.");
         }
 
         Long id = (Long) session.getAttribute("user");
@@ -58,7 +58,7 @@ public class UserController {
             return user.get();
         }
         else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "findMineById: 존재하지 않는 사용자입니다.");
         }
     }
 
