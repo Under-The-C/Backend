@@ -53,9 +53,9 @@ public class UserController {
 
         User loginUser = (User) session.getAttribute("loginUser");
 
-        String email = loginUser.getEmail();
+        Long id = loginUser.getId();
 
-        Optional<User> user = Optional.ofNullable(userRepository.findByEmail(email));
+        Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
             return user.get();
         }
@@ -103,9 +103,9 @@ public class UserController {
 
         User loginUser = (User) session.getAttribute("loginUser");
 
-        String email = loginUser.getEmail();
+        Long id = loginUser.getId();
 
-        Optional<User> beforeUser = Optional.ofNullable(userRepository.findByEmail(email));
+        Optional<User> beforeUser = userRepository.findById(id);
 
         String name = json.getName();
         String phone = json.getPhone();
