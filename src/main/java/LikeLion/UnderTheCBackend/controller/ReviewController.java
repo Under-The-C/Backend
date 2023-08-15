@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +41,7 @@ public class  ReviewController {
         this.productRepository = productRepository;
     }
 
-    @PostMapping("/add")
+    @PostMapping(value = "/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "리뷰 추가", description = "Review 테이블에 리뷰 추가", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
@@ -62,9 +63,9 @@ public class  ReviewController {
             String filename = reviewImage.getOriginalFilename();
             log.info("reviewImage.getOriginalFilename = {}", filename);
 
-            ClassPathResource classPathResource = new ClassPathResource("images/");
+            ClassPathResource classPathResource = new ClassPathResource("/images");
 
-            String fullPath = classPathResource.getPath() + filename;//(임시경로)경로 get하도록 수정 필요
+            String fullPath = classPathResource + filename;
             reviewImage.transferTo(new File(fullPath));
         }
 
