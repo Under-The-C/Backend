@@ -1,12 +1,12 @@
 package LikeLion.UnderTheCBackend.controller;
 
 import LikeLion.UnderTheCBackend.service.ImageService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/image")
@@ -19,9 +19,10 @@ public class ImageController {
         this.imageService = imageService;
     }
 
-//    @GetMapping("/download")
-//    public  downloadImage() {
-//        return imageService.downloadImage();
-//    }
+    @Operation(summary = "이미지 조회 ", description = "이미지를 반환합니다.")
+    @GetMapping(value = "image/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<byte[]> downloadImage(@PathVariable("imageName") String imageName) throws Exception {
+        return imageService.downloadImage(imageName);
+    }
 
 }
