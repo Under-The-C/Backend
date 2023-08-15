@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -79,6 +80,14 @@ public class SearchProductController {
 
         return filteredProduct;
     }
-
+    @GetMapping("/by_seller_id/{id}")
+    @Operation(summary = "판매자의 모든 상품 찾기", description = "Product 테이블의 sellerId로 상품 반환", responses = {
+            @ApiResponse(responseCode = "200", description = "성공")
+    })
+    @Transactional
+    public List<Product> findBySellerId(@RequestParam("id") Long sellerId) {
+        List<Product> product = productRepository.findBySellerId(sellerId);
+        return product;
+    }
 }
 
