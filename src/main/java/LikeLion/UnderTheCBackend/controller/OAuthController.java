@@ -77,6 +77,7 @@ public class OAuthController {
             log.info("이미 가입된 회원입니다.");
 //            headers.setLocation(URI.create(redirectReactUrl + "?email=" + email));
             if (request.getSession(false) != null) {
+                log.info("jSessionId: {}", request.getSession(false).getId());
                 headers.setLocation(URI.create(redirectReactUrl));
                 return new ResponseEntity<>("이미 로그인 되어 있습니다.", headers, HttpStatus.MOVED_PERMANENTLY);
             }
