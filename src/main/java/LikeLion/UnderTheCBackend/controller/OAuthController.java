@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -89,7 +90,14 @@ public class OAuthController {
             session.setAttribute("user", user.getId());
 
             headers.setLocation(URI.create(redirectReactUrl));
-            headers.set("Set-Cookie", "JSESSIONID=" + session.getId());
+            ResponseCookie responseCookie = ResponseCookie.from("JSESSIONID", session.getId())
+                    .httpOnly(true)
+                    .sameSite("None")
+                    .secure(true)
+                    .path("/")
+                    .maxAge(60 * 60 * 24 * 7)
+                    .build();
+            headers.set(HttpHeaders.SET_COOKIE, responseCookie.toString());
             return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }
         else {
