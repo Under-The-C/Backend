@@ -40,7 +40,7 @@ public class LoginController {
         HttpSession session = request.getSession();
         session.setAttribute("user", user.getId());
 
-        return "sucess";
+        return "success";
     }
 
     @GetMapping("/logout")
