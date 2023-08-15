@@ -74,14 +74,16 @@ public class OAuthController {
         if(isUserEmailExist(userInfo.getKakao_account().getEmail())) {
 //            headers.setLocation(URI.create(redirectReactUrl + "?email=" + email));
             if (request.getSession(false) != null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 로그인 되어 있습니다.");
+                headers.setLocation(URI.create(redirectReactUrl));
+                return new ResponseEntity<>("이미 로그인 되어 있습니다.", headers, HttpStatus.MOVED_PERMANENTLY);
             }
 
             Optional<User> result = this.userRepository.findByEmail(email);
             User user = result.orElse(null);
 
             if (user == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
+                headers.setLocation(URI.create(redirectReactUrl));
+                return new ResponseEntity<>("존재하지 않는 사용자입니다.", headers, HttpStatus.MOVED_PERMANENTLY);
             }
             HttpSession session = request.getSession();
             session.setAttribute("user", user.getId());
