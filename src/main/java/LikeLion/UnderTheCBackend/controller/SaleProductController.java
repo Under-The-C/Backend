@@ -59,7 +59,7 @@ public class  SaleProductController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "같은 이름의 상품이 이미 존재합니다.");
         }
         Product newProduct = new Product();
-        newProduct.setSeller_id(sellerId);
+        newProduct.setSellerId(sellerId);
         newProduct.setName(name);
         newProduct.setSubTitle(subTitle);
         newProduct.setPrice(price);
