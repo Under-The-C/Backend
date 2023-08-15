@@ -23,16 +23,14 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Long createUser(String name, String nickname, String phone, String email, String address, String detailAddress, String role, String profile, String certificate) {
+    public Long createUser(String name, String phone, String email, String address, String detailAddress, String role, String certificate) {
         User user = User.builder()
                 .name(name)
-                .nickname(nickname)
                 .phone(phone)
                 .email(email)
                 .address(address)
                 .detailAddress(detailAddress)
                 .role(role)
-                .profile(profile)
                 .certificate(certificate)
                 .build();
 
