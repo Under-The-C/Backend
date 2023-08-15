@@ -12,9 +12,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URI;
 import java.util.Optional;
 
 @RestController
@@ -27,11 +32,14 @@ public class OAuthController {
     private final UserService userService;
     private final UserRepository userRepository;
 
-    public OAuthController(KakaoTokenJsonData kakaoTokenJsonData, KakaoUserInfo kakaoUserInfo, UserService userService, UserRepository userRepository) {
+    private final String redirectUrl;
+
+    public OAuthController(KakaoTokenJsonData kakaoTokenJsonData, KakaoUserInfo kakaoUserInfo, UserService userService, UserRepository userRepository, @Value("${redirectUrl}") String redirectUrl) {
         this.kakaoTokenJsonData = kakaoTokenJsonData;
         this.kakaoUserInfo = kakaoUserInfo;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.redirectUrl = redirectUrl;
     }
 
     private Boolean isUserEmailExist(String email) {
@@ -48,7 +56,7 @@ public class OAuthController {
     @Operation(summary = "카카오 OAuth API", description = "인가 코드를 이용해 토큰을 받는 API", responses = {
             @ApiResponse(responseCode = "200", description = "OAuth 성공")
     })
-    public String Oauth(@RequestParam("code") String code, RedirectAttributes redirectAttributes) {
+    public ResponseEntity<?> Oauth(@RequestParam("code") String code, RedirectAttributes redirectAttributes) {
         log.info("인가 코드를 이용하여 토큰을 받습니다.");
         KakaoTokenResponse kakaoTokenResponse = kakaoTokenJsonData.getToken(code); // Kakao OAuth 인가 코드를 토큰으로 교환하는 요청
         log.info("토큰에 대한 정보입니다.{}",kakaoTokenResponse);
@@ -56,16 +64,18 @@ public class OAuthController {
         log.info("회원 정보 입니다.{}",userInfo);
 
         String email = userInfo.getKakao_account().getEmail();
-        String profile = userInfo.getKakao_account().getProfile().getProfile_image_url();
 
         redirectAttributes.addAttribute("email", email);
 
+        HttpHeaders headers = new HttpHeaders();
+
         if(isUserEmailExist(userInfo.getKakao_account().getEmail())) {
-            return "redirect:/api/vi/login";
+            headers.setLocation(URI.create("api/v1/login"));
+            return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }
         else {
-            redirectAttributes.addAttribute("profile", profile);
-            return "redirect:/api/vi/user/add";
+            headers.setLocation(URI.create(redirectUrl));
+            return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }
     }
 }
