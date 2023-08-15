@@ -86,7 +86,8 @@ public class OAuthController {
             HttpSession session = request.getSession();
             session.setAttribute("user", user.getId());
 
-            return new ResponseEntity<>(headers, HttpStatus.OK);
+            headers.setLocation(URI.create(redirectReactUrl));
+            return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }
         else {
             headers.setLocation(URI.create(redirectReactUrl + "signup-choose-role?email=" + email));
