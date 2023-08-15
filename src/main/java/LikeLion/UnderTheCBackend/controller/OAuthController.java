@@ -17,7 +17,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.net.URI;
 import java.util.Optional;
@@ -44,7 +43,7 @@ public class OAuthController {
     }
 
     private Boolean isUserEmailExist(String email) {
-        Optional<User> existingUser = Optional.ofNullable(userRepository.findByEmail(email));
+        Optional<User> existingUser = userRepository.findByEmail(email);
         if (existingUser.isPresent()) {
             return true;
         }

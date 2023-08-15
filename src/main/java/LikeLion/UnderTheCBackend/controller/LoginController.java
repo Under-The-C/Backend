@@ -34,9 +34,12 @@ public class LoginController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 로그인 되어 있습니다.");
         }
 
-        Optional<User> result = Optional.ofNullable(this.userRepository.findByEmail(email));
+        Optional<User> result = this.userRepository.findByEmail(email);
         User user = result.orElse(null);
 
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
+        }
         HttpSession session = request.getSession();
         session.setAttribute("user", user.getId());
 
