@@ -31,14 +31,15 @@ public class OAuthController {
     private final KakaoUserInfo kakaoUserInfo;
     private final UserService userService;
     private final UserRepository userRepository;
-
+    private final String redirectReactUrl;
     private final String redirectUrl;
 
-    public OAuthController(KakaoTokenJsonData kakaoTokenJsonData, KakaoUserInfo kakaoUserInfo, UserService userService, UserRepository userRepository, @Value("${redirectUrl}") String redirectUrl) {
+    public OAuthController(KakaoTokenJsonData kakaoTokenJsonData, KakaoUserInfo kakaoUserInfo, UserService userService, UserRepository userRepository, @Value("${redirect_react_URL}") String redirectReactUrl, @Value("${redirect_URL}") String redirectUrl) {
         this.kakaoTokenJsonData = kakaoTokenJsonData;
         this.kakaoUserInfo = kakaoUserInfo;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.redirectReactUrl = redirectReactUrl;
         this.redirectUrl = redirectUrl;
     }
 
@@ -56,8 +57,7 @@ public class OAuthController {
     @Operation(summary = "카카오 OAuth API", description = "인가 코드를 이용해 토큰을 받는 API", responses = {
             @ApiResponse(responseCode = "200", description = "OAuth 성공")
     })
-    public ResponseEntity<?> Oauth(@RequestParam("code") String code, RedirectAttributes redirectAttributes
-    , @RequestParam("redirectUrl") String redirectUrl) {
+    public ResponseEntity<?> Oauth(@RequestParam("code") String code, RedirectAttributes redirectAttributes) {
         log.info("인가 코드를 이용하여 토큰을 받습니다.");
         KakaoTokenResponse kakaoTokenResponse = kakaoTokenJsonData.getToken(code, redirectUrl); // Kakao OAuth 인가 코드를 토큰으로 교환하는 요청
         log.info("토큰에 대한 정보입니다.{}",kakaoTokenResponse);
@@ -75,7 +75,7 @@ public class OAuthController {
             return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }
         else {
-            headers.setLocation(URI.create(redirectUrl));
+            headers.setLocation(URI.create(redirectReactUrl));
             return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }
     }
