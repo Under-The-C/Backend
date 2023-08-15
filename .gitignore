@@ -39,4 +39,4 @@ out/
 .vscode/
 
 ### images ###
-!**/src/main/resources/images/**/.*
+/src/**/images/**
