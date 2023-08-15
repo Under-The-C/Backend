@@ -80,16 +80,21 @@ public class OAuthController {
                 headers.setLocation(URI.create(redirectReactUrl));
                 return new ResponseEntity<>("이미 로그인 되어 있습니다.", headers, HttpStatus.MOVED_PERMANENTLY);
             }
-
+            log.info("로그인을 시도합니다1.");
             Optional<User> result = this.userRepository.findByEmail(email);
             User user = result.orElse(null);
 
+            log.info("로그인을 시도합니다2.");
             if (user == null) {
                 headers.setLocation(URI.create(redirectReactUrl));
                 return new ResponseEntity<>("존재하지 않는 사용자입니다.", headers, HttpStatus.MOVED_PERMANENTLY);
             }
+            log.info("로그인을 시도합니다3.");
             HttpSession session = request.getSession();
             session.setAttribute("user", user.getId());
+            System.out.println("session = " + session.getId());
+
+            log.info("로그인을 시도합니다4.");
             log.info("session id: {}", session.getId());
 
             headers.setLocation(URI.create(redirectReactUrl + "?JSESSIONID=" + session.getId()));
