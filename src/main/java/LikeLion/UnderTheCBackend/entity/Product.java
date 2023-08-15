@@ -22,6 +22,9 @@ public class Product {
     @Column(length = 20)
     private Long id;
 
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<ProductKeywordConnect> productKeywords = new ArrayList<>();
+
     private Long seller_id;
 
     @Column(length = 255)
