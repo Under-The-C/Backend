@@ -73,40 +73,16 @@ public class OAuthController {
 
         HttpHeaders headers = new HttpHeaders();
 
-        if (isUserEmailExist(email)) {
+        User user = this.userRepository.findByEmail(email).orElse(null);
+        if (user != null) {
             log.info("이미 가입된 회원입니다.");
-//            headers.setLocation(URI.create(redirectReactUrl + "?email=" + email));
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                log.info("jSessionId: {}", session.getId());
-                headers.setLocation(URI.create(redirectReactUrl + "?JSESSIONID=" + session.getId()));
-                headers.set("Set-Cookie", "JSESSIONID=" + request.getSession(false).getId() + "; Path=/api/v1/; HttpOnly; SameSite=None; Secure");
-                return new ResponseEntity<>("이미 로그인 되어 있습니다.", headers, HttpStatus.MOVED_PERMANENTLY);
-            }
-            log.info("로그인을 시도합니다1.");
-            Optional<User> result = this.userRepository.findByEmail(email);
-            User user = result.orElse(null);
-
-            log.info("로그인을 시도합니다2.");
-            if (user == null) {
-                headers.setLocation(URI.create(redirectReactUrl));
-                return new ResponseEntity<>("존재하지 않는 사용자입니다.", headers, HttpStatus.MOVED_PERMANENTLY);
-            }
-            log.info("로그인을 시도합니다3.");
-            session = request.getSession();
-            session.setAttribute("user", user.getId());
-            System.out.println("session = " + session.getId());
-
-            log.info("로그인을 시도합니다4.");
-            log.info("session id: {}", session.getId());
-
-            headers.set("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/api/v1/; HttpOnly; SameSite=None; Secure");
-            headers.setLocation(URI.create(redirectReactUrl + "?JSESSIONID=" + session.getId()));
+            headers.setLocation(URI.create(redirectReactUrl + "login-success?access_token=" + kakaoTokenResponse.getAccess_token()));
         }
         else {
             log.info("가입되지 않은 회원입니다.");
             headers.setLocation(URI.create(redirectReactUrl + "signup-choose-role?email=" + email));
         }
+
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 }
