@@ -68,7 +68,7 @@ public class OAuthController {
         HttpHeaders headers = new HttpHeaders();
 
         if(isUserEmailExist(userInfo.getKakao_account().getEmail())) {
-            headers.setLocation(URI.create("api/v1/login"));
+            headers.setLocation(URI.create("api/v1/login" + "?email=" + email));
             return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }
         else {
