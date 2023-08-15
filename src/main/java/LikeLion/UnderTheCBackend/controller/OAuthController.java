@@ -11,12 +11,16 @@ import LikeLion.UnderTheCBackend.utils.KakaoUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.Optional;
@@ -56,7 +60,7 @@ public class OAuthController {
     @Operation(summary = "카카오 OAuth API", description = "인가 코드를 이용해 토큰을 받는 API", responses = {
             @ApiResponse(responseCode = "200", description = "OAuth 성공")
     })
-    public ResponseEntity<?> Oauth(@RequestParam("code") String code) {
+    public ResponseEntity<?> Oauth(@RequestParam("code") String code, HttpServletRequest request)  {
         log.info("인가 코드를 이용하여 토큰을 받습니다.");
         KakaoTokenResponse kakaoTokenResponse = kakaoTokenJsonData.getToken(code, redirectUrl); // Kakao OAuth 인가 코드를 토큰으로 교환하는 요청
         log.info("토큰에 대한 정보입니다.{}",kakaoTokenResponse);
@@ -68,11 +72,24 @@ public class OAuthController {
         HttpHeaders headers = new HttpHeaders();
 
         if(isUserEmailExist(userInfo.getKakao_account().getEmail())) {
-            headers.setLocation(URI.create("api/v1/login" + "?email=" + email));
-            return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+//            headers.setLocation(URI.create(redirectReactUrl + "?email=" + email));
+            if (request.getSession(false) != null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 로그인 되어 있습니다.");
+            }
+
+            Optional<User> result = this.userRepository.findByEmail(email);
+            User user = result.orElse(null);
+
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
+            }
+            HttpSession session = request.getSession();
+            session.setAttribute("user", user.getId());
+
+            return new ResponseEntity<>(headers, HttpStatus.OK);
         }
         else {
-            headers.setLocation(URI.create(redirectReactUrl + "?email=" + email));
+            headers.setLocation(URI.create(redirectReactUrl + "signup-choose-role?email=" + email));
             return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }
     }

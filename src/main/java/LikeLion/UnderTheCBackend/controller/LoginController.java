@@ -25,7 +25,7 @@ public class LoginController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/login")
+  /*  @GetMapping("/login")
     @Operation(summary = "로그인", description = "로그인 API", responses = {
             @ApiResponse(responseCode = "200", description = "로그인 성공")
     })
@@ -45,8 +45,7 @@ public class LoginController {
 
         return "success";
     }
-
-    @GetMapping("/logout")
+*/    @GetMapping("/logout")
     @Operation(summary = "로그아웃", description = "로그아웃 API", responses = {
             @ApiResponse(responseCode = "200", description = "로그아웃 성공")
     })
