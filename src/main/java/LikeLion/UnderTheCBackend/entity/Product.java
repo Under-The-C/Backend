@@ -25,7 +25,8 @@ public class Product {
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<ProductKeywordConnect> productKeywords = new ArrayList<>();
 
-    private Long seller_id;
+    @Column(name="seller_id")
+    private Long sellerId;
 
     @Column(length = 255)
     private String name;

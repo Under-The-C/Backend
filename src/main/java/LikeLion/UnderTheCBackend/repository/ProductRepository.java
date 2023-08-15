@@ -64,4 +64,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByNameContainingOrKeywordsKeywordContainingAndCategoryOrderByCreatedAtDesc(String search, String search1, String category);
 
     List<Product> findAllByNameContainingOrKeywordsKeywordContainingAndCategoryOrderByReviewCountDesc(String search, String search1, String category);
+
+    List<Product> findBySellerId(Long sellerId);
 }
