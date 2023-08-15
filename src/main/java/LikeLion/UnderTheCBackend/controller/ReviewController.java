@@ -9,17 +9,25 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+
+@Slf4j
 @RestController
 @Tag(name = "Review API", description = "리뷰 API")
 @RequestMapping("/api/v1/review")
@@ -41,15 +49,24 @@ public class  ReviewController {
             @RequestParam Long productId,
             @RequestParam int point,
             @RequestParam String description,
-            @RequestParam String reviewImage
-    ){
+            @RequestParam MultipartFile reviewImage
+    ) throws IOException {
         Review newReview = new Review();
         newReview.setBuyerId(buyerId);
         newReview.setPoint(point);
         newReview.setProductId(productId);
         newReview.setDescription(description);
-        newReview.setReviewImage(reviewImage);
         newReview.setCreatedAt(new Date()); // 현재 시간 설정
+
+        if (reviewImage != null && !reviewImage.isEmpty()) {
+            String filename = reviewImage.getOriginalFilename();
+            log.info("reviewImage.getOriginalFilename = {}", filename);
+
+            ClassPathResource classPathResource = new ClassPathResource("images/");
+
+            String fullPath = classPathResource.getPath() + filename;//(임시경로)경로 get하도록 수정 필요
+            reviewImage.transferTo(new File(fullPath));
+        }
 
         Review savedReview = reviewRepository.save(newReview); // 리뷰 저장 후 반환
 
