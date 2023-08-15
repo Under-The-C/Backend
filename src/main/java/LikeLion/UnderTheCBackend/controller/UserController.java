@@ -1,10 +1,12 @@
 package LikeLion.UnderTheCBackend.controller;
 
 import LikeLion.UnderTheCBackend.dto.AddUser;
+import LikeLion.UnderTheCBackend.dto.KakaoUserInfoResponse;
 import LikeLion.UnderTheCBackend.dto.UpdateUser;
 import LikeLion.UnderTheCBackend.entity.User;
 import LikeLion.UnderTheCBackend.repository.UserRepository;
 import LikeLion.UnderTheCBackend.service.UserService;
+import LikeLion.UnderTheCBackend.utils.KakaoUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,9 +24,12 @@ import java.util.Optional;
 public class UserController {
     private final UserRepository userRepository;
     private final UserService userService;
-    UserController(UserRepository userRepository, UserService userService) {
+    private final KakaoUserInfo kakaoUserInfo;
+
+    UserController(UserRepository userRepository, UserService userService, KakaoUserInfo kakaoUserInfo) {
         this.userRepository = userRepository;
         this.userService = userService;
+        this.kakaoUserInfo = kakaoUserInfo;
     }
 
     @GetMapping("")
@@ -62,27 +67,27 @@ public class UserController {
         }
     }
 
-    private void isUserNotExist(String email) {
-        Optional<User> existingUser = userRepository.findByEmail(email);
-        if (existingUser.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "회원가입 실패. 중복회원입니다.");
-        }
-    }
-
     @PostMapping("/add")
     @Operation(summary = "유저 추가", description = "user 테이블에 유저 추가", responses = {
             @ApiResponse(responseCode = "200", description = "회원가입 완료")
     })
-    public String addUser(@RequestBody AddUser json) {
+    public String addUser(@RequestParam("access_token") String token, @RequestBody AddUser json) {
+        KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(token);
+        if (kakaoUserInfo == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "카카오 로그인에 실패하였습니다.");
+        }
+        String email = userInfo.getKakao_account().getEmail();
         String name = json.getName();
-        String email = json.getEmail();
         String phone = json.getPhone();
         String address = json.getAddress();
         String detailAddress = json.getAddress();
         String role = json.getRole();
         String certificate = json.getCertificate();
 
-        isUserNotExist(email);
+        /* 이메일로 중복 회원 체크 */
+        userRepository.findByEmail(email).ifPresent(user -> {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "회원가입 실패. 중복회원입니다.");
+        });
 
         userService.createUser(name, phone, email, address, detailAddress, role, certificate);
 

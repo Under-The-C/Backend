@@ -47,21 +47,11 @@ public class OAuthController {
         this.redirectUrl = redirectUrl;
     }
 
-    private Boolean isUserEmailExist(String email) {
-        Optional<User> existingUser = userRepository.findByEmail(email);
-        if (existingUser.isPresent()) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
     @GetMapping("/code/kakao")
     @Operation(summary = "카카오 OAuth API", description = "인가 코드를 이용해 토큰을 받는 API", responses = {
             @ApiResponse(responseCode = "200", description = "OAuth 성공")
     })
-    public ResponseEntity<?> Oauth(@RequestParam("code") String code, HttpServletRequest request)  {
+    public ResponseEntity<?> Oauth(@RequestParam("code") String code)  {
         log.info("인가 코드를 이용하여 토큰을 받습니다.");
         KakaoTokenResponse kakaoTokenResponse = kakaoTokenJsonData.getToken(code, redirectUrl); // Kakao OAuth 인가 코드를 토큰으로 교환하는 요청
         log.info("토큰에 대한 정보입니다.{}",kakaoTokenResponse);
@@ -80,7 +70,7 @@ public class OAuthController {
         }
         else {
             log.info("가입되지 않은 회원입니다.");
-            headers.setLocation(URI.create(redirectReactUrl + "signup-choose-role?email=" + email));
+            headers.setLocation(URI.create(redirectReactUrl + "signup-choose-role?access_token=" + kakaoTokenResponse.getAccess_token()));
         }
 
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);

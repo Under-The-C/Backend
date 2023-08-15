@@ -7,8 +7,6 @@ import lombok.Getter;
 public class AddUser {
     @Schema(description = "성함")
     private String name;
-    @Schema(description = "이메일")
-    private String email;
     @Schema(description = "연락처")
     private String phone;
     @Schema(description = "도로명주소")
@@ -20,9 +18,8 @@ public class AddUser {
     @Schema(description = "사업자 등록증")
     private String certificate;
 
-    public AddUser(String name, String email, String phone, String address, String detailAddress, String role, String certificate) {
+    public AddUser(String name, String phone, String address, String detailAddress, String role, String certificate) {
         this.name = name;
-        this.email = email;
         this.phone = phone;
         this.address = address;
         this.detailAddress = detailAddress;
