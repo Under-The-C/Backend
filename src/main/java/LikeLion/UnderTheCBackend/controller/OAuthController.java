@@ -76,9 +76,10 @@ public class OAuthController {
         if (isUserEmailExist(email)) {
             log.info("이미 가입된 회원입니다.");
 //            headers.setLocation(URI.create(redirectReactUrl + "?email=" + email));
-            if (request.getSession(false) != null) {
-                log.info("jSessionId: {}", request.getSession(false).getId());
-                headers.setLocation(URI.create(redirectReactUrl));
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                log.info("jSessionId: {}", session.getId());
+                headers.setLocation(URI.create(redirectReactUrl + "?JSESSIONID=" + session.getId()));
                 headers.set("Set-Cookie", "JSESSIONID=" + request.getSession(false).getId() + "; Path=/; HttpOnly; SameSite=None; Secure");
                 return new ResponseEntity<>("이미 로그인 되어 있습니다.", headers, HttpStatus.MOVED_PERMANENTLY);
             }
@@ -92,7 +93,7 @@ public class OAuthController {
                 return new ResponseEntity<>("존재하지 않는 사용자입니다.", headers, HttpStatus.MOVED_PERMANENTLY);
             }
             log.info("로그인을 시도합니다3.");
-            HttpSession session = request.getSession();
+            session = request.getSession();
             session.setAttribute("user", user.getId());
             System.out.println("session = " + session.getId());
 
