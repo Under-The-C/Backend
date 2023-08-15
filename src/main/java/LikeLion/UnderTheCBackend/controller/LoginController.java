@@ -25,7 +25,7 @@ public class LoginController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/login")
+    @GetMapping("/login")
     @Operation(summary = "로그인", description = "로그인 API", responses = {
             @ApiResponse(responseCode = "200", description = "로그인 성공")
     })

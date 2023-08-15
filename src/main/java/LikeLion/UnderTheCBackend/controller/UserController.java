@@ -27,12 +27,12 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/email")
-    @Operation(summary = "유저 정보 보기", description = "user 테이블에 지정된 이메일로 유저 정보 반환", responses = {
+    @GetMapping("")
+    @Operation(summary = "유저 정보 보기", description = "user 테이블에 지정된 id로 유저 정보 반환", responses = {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
-    public User findByEmail(@RequestParam("email") String email) {
-        Optional<User> user = Optional.ofNullable(userRepository.findByEmail(email));
+    public User findById(@RequestParam("id") Long id) {
+        Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
             return user.get();
         }
@@ -41,11 +41,11 @@ public class UserController {
         }
     }
 
-    @GetMapping("/email/me")
+    @GetMapping("/me")
     @Operation(summary = "로그인 되어 있는 유저 정보 보기", description = "로그인 되어 있는 유저 정보 반환", responses = {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })
-    public User findMineByEmail(HttpServletRequest request) {
+    public User findMineById(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
@@ -75,9 +75,9 @@ public class UserController {
     @Operation(summary = "유저 추가", description = "user 테이블에 유저 추가", responses = {
             @ApiResponse(responseCode = "200", description = "회원가입 완료")
     })
-    public String addUser(@RequestBody AddUser json, @RequestParam("email") String email, @RequestParam("profile") String profile) {
+    public String addUser(@RequestBody AddUser json) {
         String name = json.getName();
-        String nickname = json.getNickname();
+        String email = json.getEmail();
         String phone = json.getPhone();
         String address = json.getAddress();
         String detailAddress = json.getAddress();
@@ -86,16 +86,16 @@ public class UserController {
 
         isUserNotExist(email);
 
-        userService.createUser(name, nickname, phone, email, address, detailAddress, role, profile, certificate);
+        userService.createUser(name, phone, email, address, detailAddress, role, certificate);
 
         return "success";
     }
 
     @PatchMapping("/update")
-    @Operation(summary = "유저 정보 수정", description = "user 테이블에 지정된 이메일로 유저 정보 수정", responses = {
+    @Operation(summary = "유저 정보 수정", description = "user 테이블에 지정된 id로 유저 정보 수정", responses = {
             @ApiResponse(responseCode = "200", description = "수정 완료")
     })
-    public User updateByEmail(HttpServletRequest request, @RequestBody UpdateUser json) {
+    public User updateById(HttpServletRequest request, @RequestBody UpdateUser json) {
         HttpSession session = request.getSession(false);
         if (session == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
@@ -108,7 +108,6 @@ public class UserController {
         Optional<User> beforeUser = Optional.ofNullable(userRepository.findByEmail(email));
 
         String name = json.getName();
-        String nickname = json.getNickname();
         String phone = json.getPhone();
         String address = json.getAddress();
         String detailAddress = json.getDetailAddress();
@@ -119,12 +118,11 @@ public class UserController {
 
         if(beforeUser.isPresent()) {
             afterUser.setName(name);
-            afterUser.setNickname(nickname);
             afterUser.setPhone(phone);
             afterUser.setAddress(address);
             afterUser.setDetailAddress(detailAddress);
-            afterUser.setEmail(profile);
-            afterUser.setEmail(certificate);
+            afterUser.setProfile(profile);
+            afterUser.setCertificate(certificate);
 
             userRepository.save(afterUser);
         }

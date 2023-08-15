@@ -19,8 +19,6 @@ public class User {
     @Column
     private String name;
     @Column
-    private String nickname;
-    @Column
     private String phone;
     @Column(nullable = false, unique = true, updatable = false)
     private String email;
@@ -36,10 +34,9 @@ public class User {
     private String certificate;
 
     @Builder
-    public User(Long id, String name, String nickname, String phone, String email, String address, String detailAddress, String role, String profile, String certificate) {
+    public User(Long id, String name, String phone, String email, String address, String detailAddress, String role, String profile, String certificate) {
         this.id = id;
         this.name = name;
-        this.nickname = nickname;
         this.phone = phone;
         this.email = email;
         this.address = address;
