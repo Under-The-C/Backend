@@ -51,9 +51,7 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
         }
 
-        User loginUser = (User) session.getAttribute("loginUser");
-
-        Long id = loginUser.getId();
+        Long id = (Long) session.getAttribute("user");
 
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
@@ -101,9 +99,7 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
         }
 
-        User loginUser = (User) session.getAttribute("loginUser");
-
-        Long id = loginUser.getId();
+        Long id = (Long) session.getAttribute("user");
 
         Optional<User> beforeUser = userRepository.findById(id);
 
