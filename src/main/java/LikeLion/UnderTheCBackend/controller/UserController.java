@@ -65,7 +65,7 @@ public class UserController {
     }
 
     private void isUserNotExist(String email) {
-        Optional<User> existingUser = Optional.ofNullable(userRepository.findByEmail(email));
+        Optional<User> existingUser = userRepository.findByEmail(email);
         if (existingUser.isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "회원가입 실패. 중복회원입니다.");
         }

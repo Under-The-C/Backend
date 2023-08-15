@@ -40,7 +40,7 @@ public class UserService {
     }
     @Transactional
     public void deleteUser(String email) {
-        Optional<User> user = Optional.ofNullable(userRepository.findByEmail(email));
+        Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
             deleteUser(email);
         } else {
