@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -27,11 +28,14 @@ public class OAuthController {
     private final UserService userService;
     private final UserRepository userRepository;
 
-    public OAuthController(KakaoTokenJsonData kakaoTokenJsonData, KakaoUserInfo kakaoUserInfo, UserService userService, UserRepository userRepository) {
+    private final String redirectUrl;
+
+    public OAuthController(KakaoTokenJsonData kakaoTokenJsonData, KakaoUserInfo kakaoUserInfo, UserService userService, UserRepository userRepository, @Value("${redirectUrl}") String redirectUrl) {
         this.kakaoTokenJsonData = kakaoTokenJsonData;
         this.kakaoUserInfo = kakaoUserInfo;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.redirectUrl = redirectUrl;
     }
 
     private Boolean isUserEmailExist(String email) {
@@ -65,7 +69,7 @@ public class OAuthController {
         }
         else {
             redirectAttributes.addAttribute("profile", profile);
-            return "redirect:/api/v1/user/add";
+            return "redirect:" + redirectUrl;
         }
     }
 }
