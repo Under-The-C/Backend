@@ -80,7 +80,7 @@ public class OAuthController {
             if (session != null) {
                 log.info("jSessionId: {}", session.getId());
                 headers.setLocation(URI.create(redirectReactUrl + "?JSESSIONID=" + session.getId()));
-                headers.set("Set-Cookie", "JSESSIONID=" + request.getSession(false).getId() + "; Path=/; HttpOnly; SameSite=None; Secure");
+                headers.set("Set-Cookie", "JSESSIONID=" + request.getSession(false).getId() + "; Path=/api/v1/; HttpOnly; SameSite=None; Secure");
                 return new ResponseEntity<>("이미 로그인 되어 있습니다.", headers, HttpStatus.MOVED_PERMANENTLY);
             }
             log.info("로그인을 시도합니다1.");
@@ -100,7 +100,7 @@ public class OAuthController {
             log.info("로그인을 시도합니다4.");
             log.info("session id: {}", session.getId());
 
-            headers.set("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=None; Secure");
+            headers.set("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/api/v1/; HttpOnly; SameSite=None; Secure");
             headers.setLocation(URI.create(redirectReactUrl + "?JSESSIONID=" + session.getId()));
         }
         else {
