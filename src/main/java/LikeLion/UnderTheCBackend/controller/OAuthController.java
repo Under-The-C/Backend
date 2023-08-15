@@ -89,7 +89,7 @@ public class OAuthController {
             session.setAttribute("user", user.getId());
 
             headers.setLocation(URI.create(redirectReactUrl));
-            headers.set("JSESSIONID", session.getId());
+            headers.set("Set-Cookie", "JSESSIONID=" + session.getId());
             return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }
         else {
