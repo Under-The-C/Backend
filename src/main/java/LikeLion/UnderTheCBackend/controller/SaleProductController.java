@@ -84,16 +84,15 @@ public class  SaleProductController {
         //메인이미지 파일 저장
         if (mainImage != null && !mainImage.isEmpty()) {
             String filename = mainImage.getOriginalFilename();
-            log.info("reviewImage.getOriginalFilename = {}", filename);
+            log.info("mainImage.getOriginalFilename = {}", filename);
 
             String absolutePath = System.getProperty("user.dir");;
             log.info(" absolutePath = {}", absolutePath);
-            String checkPath = absolutePath +imagesPath+filename; //폴더 경로
-            File Folder = new File(checkPath);
+            File Folder = new File(absolutePath+imagesPath);
             // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
             if (!Folder.exists()) {
                 try{
-                    Folder.mkdir(); //폴더 생성합니다.
+                    Folder.mkdirs(); //폴더 생성합니다.
                     System.out.println("폴더가 생성되었습니다.");
                 }
                 catch(Exception e){
