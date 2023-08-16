@@ -24,16 +24,6 @@ public class UnderTheCBackendApplication {
 		SpringApplication.run(UnderTheCBackendApplication.class, args);
 	}
 
-
-	@Bean
-	public CookieSerializer cookieSerializer() {
-		DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-		serializer.setCookieName("JSESSIONID");
-		serializer.setCookiePath("/");
-		serializer.setSameSite("None");
-		return serializer;
-	}
-
 	/* Cors 설정 */
 	@Bean
 	public WebMvcConfigurer corsConfigurer() {

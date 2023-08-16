@@ -11,7 +11,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,7 +37,7 @@ public class LoginController {
     @Operation(summary = "로그인", description = "로그인 API", responses = {
             @ApiResponse(responseCode = "200", description = "로그인 성공")
     })
-    public String login(HttpServletRequest request, @RequestParam("access_token") String token) {
+    public ResponseEntity<?> login(HttpServletRequest request, @RequestParam("access_token") String token) {
         if (request.getSession(false) != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 로그인 되어 있습니다.");
         }
@@ -54,7 +56,9 @@ public class LoginController {
         HttpSession session = request.getSession();
         session.setAttribute("user", user.getId());
 
-        return "success";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Set-Cookie", "JSESSIONID=" + session.getId() + "; HttpOnly; SameSite=None; Secure");
+        return new ResponseEntity<>(headers, HttpStatus.OK);
     }
 
     @GetMapping("/logout")
