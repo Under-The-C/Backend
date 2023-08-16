@@ -1,27 +1,31 @@
 package LikeLion.UnderTheCBackend.controller;
 
-import LikeLion.UnderTheCBackend.entity.Product;
-import LikeLion.UnderTheCBackend.entity.ProductDetailImage;
-import LikeLion.UnderTheCBackend.entity.ProductKeyword;
-import LikeLion.UnderTheCBackend.entity.ReviewImage;
+import LikeLion.UnderTheCBackend.entity.*;
 import LikeLion.UnderTheCBackend.repository.ProductRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+
 @RestController
+@Slf4j
 @Tag(name = "SaleProduct API", description = "상품 판매 API")
 @RequestMapping("/api/v1/sale_product")
 
@@ -42,13 +46,13 @@ public class  SaleProductController {
             @RequestParam(required = false) BigDecimal price,
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String subDescription,
-            @RequestParam(required = false) String mainImage,
+            @RequestParam(required = false) MultipartFile mainImage,
             @RequestParam(required = false) List<String> keyword,
             @RequestParam(required = false) List<String> detailImage,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleStartDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleEndDate,
             @RequestParam(required = false) String category
-    ) {
+    ) throws IOException {
         //로그인 정보 왜래키로 받아 Product테이블의 seller_id에 set 필요
         //로그인 정보 예외처리 필요
 
@@ -59,20 +63,33 @@ public class  SaleProductController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "같은 이름의 상품이 이미 존재합니다.");
         }
         Product newProduct = new Product();
-        newProduct.setSeller_id(sellerId);
+        newProduct.setSellerId(sellerId);
         newProduct.setName(name);
         newProduct.setSubTitle(subTitle);
         newProduct.setPrice(price);
         newProduct.setDescription(description);
         newProduct.setSubDescription(subDescription);
-        newProduct.setMain_image(mainImage);
-        List<ProductKeyword> keywordEntities = new ArrayList<>();
+//        newProduct.setMain_image(mainImage);
+        List<ProductKeywordConnect> keywordEntities = new ArrayList<>();
         for (String keywordStr : keyword) {
-            ProductKeyword keywords = new ProductKeyword();
+            ProductKeywordConnect keywords = new ProductKeywordConnect();
+
             keywords.setKeyword(keywordStr);
             keywordEntities.add(keywords);
         }
         newProduct.setKeywords(keywordEntities);
+
+        //메인이미지 파일 저장
+        if (mainImage != null && !mainImage.isEmpty()) {
+            String filename = mainImage.getOriginalFilename();
+            log.info("mainImage.getOriginalFilename = {}", filename);
+
+            ClassPathResource classPathResource = new ClassPathResource("images/");
+            String absolutePath = System.getProperty("user.dir");
+            //String fullPath = classPathResource.getPath() + filename;//(임시경로)경로 get하도록 수정 필요
+            log.info(" absolutePath = {}", absolutePath);
+            mainImage.transferTo(new File(absolutePath + "images/"+filename));
+        }
 
         // 이미지 URL 리스트에서 ReviewImage 엔티티를 생성합니다.
         List<ProductDetailImage> detailImages = new ArrayList<>();
@@ -119,6 +136,7 @@ public class  SaleProductController {
         return product;
     }
 
+
     @PatchMapping("/update/{id}")
     @Operation(summary = "판매 상품 수정", description = "product table의 id 입력받아 판매 상품 수정", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
@@ -131,7 +149,7 @@ public class  SaleProductController {
             @RequestParam(required = false) BigDecimal price,
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String subDescription,
-            @RequestParam(required = false) String mainImage,
+            @RequestParam(required = false) MultipartFile mainImage,
             @RequestParam(required = false) List<String> keyword,
             @RequestParam(required = false) List<String> detailImage,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleStartDate,
@@ -157,9 +175,9 @@ public class  SaleProductController {
             if (price != null)
                 product.setPrice(price);
             if (keyword != null) {
-                List<ProductKeyword> updatedKeywords = new ArrayList<>();
+                List<ProductKeywordConnect> updatedKeywords = new ArrayList<>();
                 for (String keywordStr : keyword) {
-                    ProductKeyword keywordEntity = new ProductKeyword();
+                    ProductKeywordConnect keywordEntity = new ProductKeywordConnect();
                     keywordEntity.setKeyword(keywordStr);
                     updatedKeywords.add(keywordEntity);
                 }
@@ -183,10 +201,9 @@ public class  SaleProductController {
             if (subTitle != null)
                 product.setSubTitle(subTitle);
             if (subDescription != null)
-                product.setSubDescription(subDescription);
+                product.setSubDescription(subDescription);/*
             if (mainImage != null) //이미지 관련 DB접근은 수정 필요함
-                product.setMain_image(mainImage);
-
+                product.setMain_image(mainImage);*/
             productRepository.save(product);
             return product;
         }else {

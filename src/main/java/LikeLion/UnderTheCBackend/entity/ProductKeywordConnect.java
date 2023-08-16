@@ -14,12 +14,13 @@ public class ProductKeywordConnect {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name="product_id")
+    @JoinColumn(name="product_id",referencedColumnName = "id")
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name="producKeyword_id")
+    @JoinColumn(name="producKeyword_id", referencedColumnName = "id")
     private ProductKeyword productKeyword;
 
+    @Column(unique = true)
     private String keyword;
 }

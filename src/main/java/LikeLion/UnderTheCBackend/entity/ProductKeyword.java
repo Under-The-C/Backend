@@ -23,5 +23,6 @@ public class ProductKeyword {
     @OneToMany(mappedBy = "productKeyword", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<ProductKeywordConnect> products = new ArrayList<>();
 
+    @Column(unique = true)
     private String keyword;
 }
