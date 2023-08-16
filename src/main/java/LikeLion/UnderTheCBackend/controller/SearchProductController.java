@@ -80,6 +80,29 @@ public class SearchProductController {
 
         return filteredProduct;
     }
+    @GetMapping("/category_all")
+    @Operation(summary = "판매 상품 카테고리내 전체 검색 (최신순 or 조회순 or 리뷰순 or 가격순)", description = "Product 테이블에서 Name으로 검색하여 " +
+            "선택한 Category의 정렬된 Product 객체 반환", responses = {
+            @ApiResponse(responseCode = "200", description = "성공")
+    })
+    public List<Product> searchByCategoryAll(
+            @RequestParam("Category") String category,
+            @RequestParam("sortBy") String sortBy
+    ) {
+        List<Product> product;
+        if (sortBy.equals("최신순")) {
+            product = productRepository.findAllByCategoryOrderByCreatedAtDesc(category);
+        }else if (sortBy.equals("가격순")) {
+            product = productRepository.findAllByCategoryOrderByPrice(category);
+        }else if (sortBy.equals("조회순")) {
+            product = productRepository.findAllByCategoryOrderByViewCountDesc(category);
+        }else if (sortBy.equals("리뷰순")) {
+            product = productRepository.findAllByCategoryOrderByReviewCountDesc(category);
+        }else {
+            product = productRepository.findAllByCategory(category);
+        }
+        return product;
+    }
     @GetMapping("/by_seller_id/{id}")
     @Operation(summary = "판매자의 모든 상품 찾기", description = "Product 테이블의 sellerId로 상품 반환", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
