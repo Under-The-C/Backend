@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -47,12 +49,20 @@ public class  ReviewController {
             @ApiResponse(responseCode = "200", description = "성공")
     })
     public Review addByBuyerId(
-            @RequestParam Long buyerId,
             @RequestParam Long productId,
             @RequestParam int point,
             @RequestParam String description,
-            @RequestParam(required = false) MultipartFile reviewImage
+            @RequestParam(required = false) MultipartFile reviewImage,
+            HttpServletRequest request
     ) throws IOException {
+        // 로그인한 유저인지 확인
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
+        // 로그인한 유저의 id를 받아옴
+        Long buyerId = (Long) session.getAttribute("user");
+
         Review newReview = new Review();
         newReview.setBuyerId(buyerId);
         newReview.setPoint(point);
@@ -132,8 +142,12 @@ public class  ReviewController {
     @Operation(summary = "리뷰 삭제", description = "Review 테이블에 지정된 id로 리뷰 삭제", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
-    public Review deleteById(@RequestParam("reviewId") Long reviewId) {
-
+    public Review deleteById(@RequestParam("reviewId") Long reviewId, HttpServletRequest request) {
+        // 로그인한 유저인지 확인
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
         //String sellerId = seller.getId(); seller테이블 받으면 구현 재개
 
         Optional<Review> review = reviewRepository.findById(reviewId);

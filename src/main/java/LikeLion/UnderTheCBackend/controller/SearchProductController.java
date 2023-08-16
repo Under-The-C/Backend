@@ -6,11 +6,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
 @Tag(name = "SearchProduct API", description = "상품 검색 API")
@@ -110,6 +115,21 @@ public class SearchProductController {
     @Transactional
     public List<Product> findBySellerId(@RequestParam("id") Long sellerId) {
         List<Product> product = productRepository.findBySellerId(sellerId);
+        return product;
+    }
+
+    @GetMapping("/by_seller_id/me")
+    @Operation(summary = "나의 모든 판매 상품 찾기", description = "Product 테이블의 로그인한 판매자 상품 반환", responses = {
+            @ApiResponse(responseCode = "200", description = "성공")
+    })
+    @Transactional
+    public List<Product> findByMyId(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
+        Long myId = (Long) session.getAttribute("user");
+        List<Product> product = productRepository.findBySellerId(myId);
         return product;
     }
 }

@@ -2,12 +2,15 @@ package LikeLion.UnderTheCBackend.controller;
 
 import LikeLion.UnderTheCBackend.entity.*;
 import LikeLion.UnderTheCBackend.repository.ProductRepository;
+import LikeLion.UnderTheCBackend.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,18 +34,20 @@ import java.util.Optional;
 @RequestMapping("/api/v1/sale_product")
 
 public class  SaleProductController {
-    ProductRepository productRepository;
-    final String imagesPath = "/src/main/resources/images/";
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final String imagesPath = "/src/main/resources/images/";
 
-    SaleProductController(ProductRepository productRepository) {
+    @Autowired
+    SaleProductController(ProductRepository productRepository, UserRepository userRepository) {
         this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
     @PostMapping(value="/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "판매 상품 추가", description = "Product 테이블에 상품 정보 추가", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
     public Product addByProductName(
-            @RequestParam Long sellerId,
             @RequestParam String name,
             @RequestParam(required = false) String subTitle,
             @RequestParam(required = false) BigDecimal price,
@@ -53,10 +58,18 @@ public class  SaleProductController {
             @RequestParam(required = false) List<String> detailImage,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleStartDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleEndDate,
-            @RequestParam(required = false) String category
+            @RequestParam(required = false) String category,
+            HttpServletRequest request
     ) throws IOException {
         //로그인 정보 왜래키로 받아 Product테이블의 seller_id에 set 필요
         //로그인 정보 예외처리 필요
+
+        // 로그인한 유저인지 확인
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
+        Long sellerId = (Long) session.getAttribute("user");
 
         //같은 이름의 상품은 생성 불가
         Optional<Product> existingProduct = productRepository.findByName(name);

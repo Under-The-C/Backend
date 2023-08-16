@@ -12,7 +12,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.websocket.Session;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +40,13 @@ public class ShoppingController {
     @Operation(summary = "장바구니 조회", description = "세션에 저장된 User의 Id로 장바구니 조회", responses = {
             @ApiResponse(responseCode = "200", description = "조회 완료")
     })
-    public JsonResponse getShoppingList(@Parameter(hidden = true) Session session) {
-        User user = userService.findUser((Long) session.getUserProperties().get("user"));
+    public JsonResponse getShoppingList(@Parameter(hidden = true)HttpServletRequest request) {
+        // 로그인 확인
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
+        User user = userService.findUser((Long) session.getAttribute("user"));
 
         List<ShoppingList> list = shoppingService.findListByUserId(user.getId());
         return new JsonResponse("200", "success", list);
@@ -48,12 +54,17 @@ public class ShoppingController {
 
     @PostMapping("/add")
     @Operation(summary = "장바구니에 상풍 추가", description = "세션에 저장된 User의 Id로 장바구니에 추가", responses = {
-            @ApiResponse(responseCode = "200", description = "추가 완료")
+            @ApiResponse(responseCode = "200", description = "장바구니 추가 완료")
     })
-    public JsonResponse addShoppingList(@Parameter(hidden = true) Session session
+    public JsonResponse addShoppingList(@Parameter(hidden = true) HttpServletRequest request
         , @Parameter(description = "상품 id") @RequestParam("product_id") Long productId
             , @Parameter(description = "주문 개수") @RequestParam("count") Integer count) {
-        User user = userService.findUser((Long) session.getUserProperties().get("user"));
+        // 로그인 확인
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
+        User user = userService.findUser((Long) session.getAttribute("user"));
 
         Product product = productService.getProduct(productId);
         List<ShoppingList> shoppingLists = shoppingService.addShoppingList(user, product, count);
@@ -62,12 +73,17 @@ public class ShoppingController {
     }
 
     @DeleteMapping("/delete")
-    public JsonResponse deleteShoppingList(@Parameter(hidden = true) Session session
+    public JsonResponse deleteShoppingList(@Parameter(hidden = true) HttpServletRequest request
             , @Parameter(description = "상품 id") @RequestParam("product_id") Long productId
             , @Parameter(description = "주문 개수") @RequestParam("count") Integer count) {
-        User user = userService.findUser((Long) session.getUserProperties().get("user"));
+        // 로그인 확인
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
+        User user = userService.findUser((Long) session.getAttribute("user"));
 
-        ShoppingList list = shoppingService.deleteByProductId(user.getId(), productId, count);
+        ShoppingList list = shoppingService.deleteByUserIdAndProductId(user.getId(), productId, count);
         return new JsonResponse("200", "success", list);
     }
 
@@ -79,8 +95,13 @@ public class ShoppingController {
     @Operation(summary = "구매기록 조회", description = "세션에 저장된 User의 Id로 구매기록 조회", responses = {
             @ApiResponse(responseCode = "200", description = "조회 완료")
     })
-    public JsonResponse getShoppingHistory(@Parameter(hidden = true) Session session) {
-        User user = userService.findUser((Long) session.getUserProperties().get("user"));
+    public JsonResponse getShoppingHistory(@Parameter(hidden = true) HttpServletRequest request) {
+        // 로그인 확인
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
+        User user = userService.findUser((Long) session.getAttribute("user"));
 
         List<ShoppingHistory> list = shoppingService.findHistoryByUserId(user.getId());
         return new JsonResponse("200", "success", list);

@@ -3,10 +3,15 @@ package LikeLion.UnderTheCBackend.controller;
 import LikeLion.UnderTheCBackend.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
 @RequestMapping("/images")
@@ -21,7 +26,12 @@ public class ImageController {
 
     @Operation(summary = "이미지 조회 ", description = "이미지를 반환합니다.")
     @GetMapping(value = "/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<byte[]> downloadImage(@PathVariable("imageName") String imageName) throws Exception {
+    public ResponseEntity<byte[]> downloadImage(@PathVariable("imageName") String imageName
+            , HttpServletRequest request) throws Exception {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
         return imageService.downloadImage(imageName);
     }
 

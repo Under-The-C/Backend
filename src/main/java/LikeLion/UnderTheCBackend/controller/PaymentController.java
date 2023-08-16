@@ -12,11 +12,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.session.Session;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import retrofit2.HttpException;
 
 import java.io.IOException;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
 @RequestMapping("/api/v1/payment")
@@ -35,7 +41,11 @@ public class PaymentController {
             @ApiResponse(responseCode = "200", description = "주문번호 등록 후 전달 완료"),
             @ApiResponse(responseCode = "404", description = "상품 id가 잘못된 경우")
     })
-    public String makeMerchantUid(@Parameter(hidden = true) Session session) throws IamportResponseException, IOException {
+    public String makeMerchantUid(@Parameter(hidden = true)HttpServletRequest request) throws IamportResponseException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
         User user = userService.findUser((Long) session.getAttribute("user"));
         return paymentService.makeMerchantUid(user);
     }
@@ -44,8 +54,15 @@ public class PaymentController {
     @Operation(summary = "결제 확정", description = "상품이 정상적으로 결제 되었는지 확인 후 처리", responses = {
             @ApiResponse(responseCode = "200", description = "결제 완료")
     })
-    public IamportResponse<Payment> completePayment(@Parameter(hidden = true) Session session
+    public IamportResponse<Payment> completePayment(@Parameter(hidden = true) HttpServletRequest request
             , @Parameter(description = "결제정보") @RequestBody PaymentRequest data) throws IamportResponseException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
+        if (data.getImp_uid() == null || data.getMerchant_uid() == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "결제정보가 잘못되었습니다.");
+        }
         User user = userService.findUser((Long) session.getAttribute("user"));
         return paymentService.completePayment(user, data);
     }
@@ -54,8 +71,15 @@ public class PaymentController {
     @Operation(summary = "결제 취소", description = "결제한 주문을 취소하는 API", responses = {
             @ApiResponse(responseCode = "200", description = "결제 취소 완료")
     })
-    public IamportResponse<Payment> cancelPayment(@Parameter(hidden = true) Session session
+    public IamportResponse<Payment> cancelPayment(@Parameter(hidden = true) HttpServletRequest request
             , @Parameter(description = "결제번호와 주문번호") @RequestBody PaymentRequest data) throws IamportResponseException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
+        if (data.getImp_uid() == null || data.getMerchant_uid() == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "결제정보가 잘못되었습니다.");
+        }
         User user = userService.findUser((Long) session.getAttribute("user"));
         return paymentService.cancelPayment(user, data);
     }
@@ -65,6 +89,9 @@ public class PaymentController {
             @ApiResponse(responseCode = "200", description = "WebHook 처리 완료")
     })
     public void webHookCheck(@RequestBody WebHookJson data) throws IamportResponseException, IOException {
+        if (data.getImp_uid() == null || data.getMerchant_uid() == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "결제정보가 잘못되었습니다.");
+        }
         paymentService.webHookCheck(data);
     }
 

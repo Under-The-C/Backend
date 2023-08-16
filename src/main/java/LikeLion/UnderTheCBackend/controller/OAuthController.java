@@ -96,7 +96,7 @@ public class OAuthController {
         HttpHeaders headers = new HttpHeaders();
         if (user != null) {
             /* User 정보 삭제 */
-            userRepository.delete(user);
+            userService.deleteUser(email);
             headers.setLocation(URI.create(redirectReactUrl + "delete-success"));
         }
         headers.setLocation(URI.create(redirectReactUrl));

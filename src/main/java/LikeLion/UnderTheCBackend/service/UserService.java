@@ -42,7 +42,7 @@ public class UserService {
     public void deleteUser(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
-            deleteUser(email);
+            userRepository.delete(user.get());
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
         }
