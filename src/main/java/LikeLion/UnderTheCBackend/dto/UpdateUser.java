@@ -2,6 +2,7 @@ package LikeLion.UnderTheCBackend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 public class UpdateUser {
@@ -16,10 +17,10 @@ public class UpdateUser {
     @Schema(description = "상세주소")
     private String detailAddress;
     @Schema(description = "사진")
-    private String profile;
+    private MultipartFile profile;
     @Schema(description = "사업자 등록증")
     private String certificate;
-    public UpdateUser(String name, String nickname, String phone, String address, String detailAddress, String profile, String certificate) {
+    public UpdateUser(String name, String nickname, String phone, String address, String detailAddress, MultipartFile profile, String certificate) {
         this.name = name;
         this.nickname = nickname;
         this.phone = phone;
