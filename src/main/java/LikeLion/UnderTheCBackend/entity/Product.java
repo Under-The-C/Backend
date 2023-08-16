@@ -52,7 +52,7 @@ public class Product {
 
     @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "product_keyword")
-    private List<ProductKeyword> keywords = new ArrayList<>();
+    private List<ProductKeywordConnect> keywords = new ArrayList<>();
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")//Date타입 포맷 변경
