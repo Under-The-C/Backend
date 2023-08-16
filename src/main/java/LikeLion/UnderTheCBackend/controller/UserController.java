@@ -7,25 +7,34 @@ import LikeLion.UnderTheCBackend.entity.User;
 import LikeLion.UnderTheCBackend.repository.UserRepository;
 import LikeLion.UnderTheCBackend.service.UserService;
 import LikeLion.UnderTheCBackend.utils.KakaoUserInfo;
+import io.micrometer.common.util.internal.logging.InternalLogger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
 
+
+@Slf4j
 @RestController
 @Tag(name = "user API", description = "유저 API")
 @RequestMapping("/api/v1/user")
 public class UserController {
+    final String imagesPath = "/src/main/resources/images/";
     private final UserRepository userRepository;
     private final UserService userService;
     private final KakaoUserInfo kakaoUserInfo;
@@ -101,7 +110,7 @@ public class UserController {
     @Operation(summary = "유저 정보 수정", description = "user 테이블에 지정된 id로 유저 정보 수정", responses = {
             @ApiResponse(responseCode = "200", description = "수정 완료")
     })
-    public User updateById(HttpServletRequest request, @RequestBody UpdateUser json) {
+    public User updateById(HttpServletRequest request, @RequestBody UpdateUser json) throws IOException {
         HttpSession session = request.getSession(false);
         if (session == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
@@ -115,7 +124,7 @@ public class UserController {
         String phone = json.getPhone();
         String address = json.getAddress();
         String detailAddress = json.getDetailAddress();
-        String profile = json.getProfile();
+        MultipartFile profile = json.getProfile();
         String certificate = json.getCertificate();
 
         User afterUser = beforeUser.get();
@@ -125,8 +134,19 @@ public class UserController {
             afterUser.setPhone(phone);
             afterUser.setAddress(address);
             afterUser.setDetailAddress(detailAddress);
-            afterUser.setProfile(profile);
             afterUser.setCertificate(certificate);
+
+            if (profile != null && !profile.isEmpty()) {
+                String filename = profile.getOriginalFilename();
+                log.info("reviewImage.getOriginalFilename = {}", filename);
+
+                ClassPathResource classPathResource = new ClassPathResource("images/");
+                String absolutePath = System.getProperty("user.dir");
+                ;
+                String fullPath = classPathResource.getPath() + filename;
+                log.info(" absolutePath = {}", absolutePath);
+                profile.transferTo(new File(absolutePath + imagesPath + filename));
+            }
 
             userRepository.save(afterUser);
         }
