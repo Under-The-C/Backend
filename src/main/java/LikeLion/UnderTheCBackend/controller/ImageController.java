@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/image")
+@RequestMapping("/images")
 @Tag(name = "이미지 API", description = "이미지 가져오는 API")
 public class ImageController {
     private ImageService imageService;
@@ -20,7 +20,7 @@ public class ImageController {
     }
 
     @Operation(summary = "이미지 조회 ", description = "이미지를 반환합니다.")
-    @GetMapping(value = "image/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<byte[]> downloadImage(@PathVariable("imageName") String imageName) throws Exception {
         return imageService.downloadImage(imageName);
     }

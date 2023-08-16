@@ -12,10 +12,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
 import java.util.Optional;
 
 @RestController
@@ -25,7 +29,6 @@ public class UserController {
     private final UserRepository userRepository;
     private final UserService userService;
     private final KakaoUserInfo kakaoUserInfo;
-
     UserController(UserRepository userRepository, UserService userService, KakaoUserInfo kakaoUserInfo) {
         this.userRepository = userRepository;
         this.userService = userService;
@@ -53,7 +56,7 @@ public class UserController {
     public User findMineById(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "findMineById: 로그인 되어 있지 않습니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
         }
 
         Long id = (Long) session.getAttribute("user");
@@ -63,7 +66,7 @@ public class UserController {
             return user.get();
         }
         else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "findMineById: 존재하지 않는 사용자입니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
         }
     }
 
@@ -137,15 +140,21 @@ public class UserController {
 //    @Operation(summary = "유저 삭제", description = "user 테이블에 지정된 이메일로 유저 삭제", responses = {
 //            @ApiResponse(responseCode = "200", description = "회원탈퇴 완료")
 //    })
-//    public User deleteByEmail(@RequestParam("email") String email) {
+//    public String deleteById(HttpServletRequest request) {
 //        // 로그인 구현 후, 로그인 되어 있을 경우, 안 되어 있을 경우 나누어서 구현할 예정
-//        Optional<User> user = Optional.ofNullable(userRepository.findByEmail(email));
+//        HttpSession session = request.getSession(false);
+//        if (session == null) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+//        }
+//        Long id = (Long) session.getAttribute("user");
 //
-//        if (user.isPresent()) {
-//            userRepository.deleteByEmail(email);
-//            return user.get();
+//        User user = userRepository.findById(id).orElse(null);
+//        if (user != null) {
+//            userRepository.deleteById(id);
+//            session.invalidate();
+//            return "success";
 //        } else {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자를 찾을 수 없습니다.");
 //        }
 //    }
 }

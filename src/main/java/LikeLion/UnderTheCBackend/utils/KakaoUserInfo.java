@@ -11,11 +11,24 @@ import reactor.core.publisher.Flux;
 public class KakaoUserInfo {
     private final WebClient webClient;
     private static final String User_INFO_URI = "https://kapi.kakao.com/v2/user/me";
+    private static final String UNLINK_URI = "https://kapi.kakao.com/v1/user/unlink";
 
     public KakaoUserInfoResponse getUserInfo(String token) {
         String uri = User_INFO_URI;
 
         Flux<KakaoUserInfoResponse> response = webClient.get()
+                .uri(uri)
+                .header("Authorization", "Bearer " + token)
+                .retrieve()
+                .bodyToFlux(KakaoUserInfoResponse.class);
+
+        return response.blockFirst();
+    }
+
+    public KakaoUserInfoResponse postUnlink(String token) {
+        String uri = UNLINK_URI;
+
+        Flux<KakaoUserInfoResponse> response = webClient.post()
                 .uri(uri)
                 .header("Authorization", "Bearer " + token)
                 .retrieve()
