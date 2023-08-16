@@ -28,7 +28,7 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-resources/**",
-            "/api/v1/**",
+            "/api/v1/login",
             "/login/oauth2/**",
             "/image/**"
     };
@@ -39,6 +39,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
 //                        .requestMatchers(WHITE_LIST).permitAll()
+//                        .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().permitAll())
         /* 로그인 페이지 설정 */
                 .formLogin(form -> form

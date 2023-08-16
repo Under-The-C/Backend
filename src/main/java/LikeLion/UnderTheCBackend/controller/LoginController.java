@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,6 +25,7 @@ public class LoginController {
     private UserRepository userRepository;
     private KakaoUserInfo kakaoUserInfo;
 
+    @Autowired
     LoginController(UserRepository userRepository, KakaoUserInfo kakaoUserInfo) {
         this.userRepository = userRepository;
         this.kakaoUserInfo = kakaoUserInfo;
@@ -39,7 +41,7 @@ public class LoginController {
         }
 
         KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(token);
-        if (kakaoUserInfo == null) {
+        if (userInfo == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "카카오 로그인에 실패하였습니다.");
         }
         String email = userInfo.getKakao_account().getEmail();
