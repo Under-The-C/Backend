@@ -43,8 +43,8 @@ public class Product {
     @Column(length = 255, name="sub_description")//추가 설명
     private String subDescription;
 
-    @Column(length = 255)
-    private String main_image; //image 저장방법 확인 후 수정필요함
+    @Column(length = 255, name="main_image")
+    private String mainImage; //image 저장방법 확인 후 수정필요함
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "detail_image")
@@ -73,9 +73,6 @@ public class Product {
 
     @Column(name = "average_review_point")
     private Double averageReviewPoint = 0.0;
-
-
-
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")

@@ -64,11 +64,24 @@ public class  ReviewController {
             String filename = reviewImage.getOriginalFilename();
             log.info("reviewImage.getOriginalFilename = {}", filename);
 
-            ClassPathResource classPathResource = new ClassPathResource("images/");
             String absolutePath = System.getProperty("user.dir");;
-            String fullPath = classPathResource.getPath() + filename;
             log.info(" absolutePath = {}", absolutePath);
+            String checkPath = absolutePath +imagesPath+filename; //폴더 경로
+            File Folder = new File(checkPath);
+            // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
+            if (!Folder.exists()) {
+                try{
+                    Folder.mkdir(); //폴더 생성합니다.
+                    System.out.println("폴더가 생성되었습니다.");
+                }
+                catch(Exception e){
+                    e.getStackTrace();
+                }
+            }else {
+                System.out.println("이미 폴더가 생성되어 있습니다.");
+            }
             reviewImage.transferTo(new File(absolutePath +imagesPath+filename));
+            newReview.setReviewImage(filename);
         }
 
         Review savedReview = reviewRepository.save(newReview); // 리뷰 저장 후 반환

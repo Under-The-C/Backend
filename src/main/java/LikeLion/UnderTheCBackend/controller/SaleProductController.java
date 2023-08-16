@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,11 +32,12 @@ import java.util.Optional;
 
 public class  SaleProductController {
     ProductRepository productRepository;
+    final String imagesPath = "/src/main/resources/images/";
 
     SaleProductController(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
-    @PostMapping("/add")
+    @PostMapping(value="/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "판매 상품 추가", description = "Product 테이블에 상품 정보 추가", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
@@ -82,13 +84,26 @@ public class  SaleProductController {
         //메인이미지 파일 저장
         if (mainImage != null && !mainImage.isEmpty()) {
             String filename = mainImage.getOriginalFilename();
-            log.info("mainImage.getOriginalFilename = {}", filename);
+            log.info("reviewImage.getOriginalFilename = {}", filename);
 
-            ClassPathResource classPathResource = new ClassPathResource("images/");
-            String absolutePath = System.getProperty("user.dir");
-            //String fullPath = classPathResource.getPath() + filename;//(임시경로)경로 get하도록 수정 필요
+            String absolutePath = System.getProperty("user.dir");;
             log.info(" absolutePath = {}", absolutePath);
-            mainImage.transferTo(new File(absolutePath + "images/"+filename));
+            String checkPath = absolutePath +imagesPath+filename; //폴더 경로
+            File Folder = new File(checkPath);
+            // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
+            if (!Folder.exists()) {
+                try{
+                    Folder.mkdir(); //폴더 생성합니다.
+                    System.out.println("폴더가 생성되었습니다.");
+                }
+                catch(Exception e){
+                    e.getStackTrace();
+                }
+            }else {
+                System.out.println("이미 폴더가 생성되어 있습니다.");
+            }
+            mainImage.transferTo(new File(absolutePath +imagesPath+filename));
+            newProduct.setMainImage(filename);
         }
 
         // 이미지 URL 리스트에서 ReviewImage 엔티티를 생성합니다.
