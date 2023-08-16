@@ -86,7 +86,7 @@ public class UserController {
     })
     public String addUser(@RequestParam("access_token") String token, @RequestBody AddUser json) {
         KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(token);
-        if (kakaoUserInfo == null) {
+        if (userInfo == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "카카오 로그인에 실패하였습니다.");
         }
         String email = userInfo.getKakao_account().getEmail();

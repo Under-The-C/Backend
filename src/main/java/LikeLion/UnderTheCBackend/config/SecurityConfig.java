@@ -28,9 +28,10 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-resources/**",
-            "/api/v1/login",
             "/login/oauth2/**",
-            "/image/**"
+            "/api/v1/login",
+            "/api/v1/review/**",
+            "/api/v1/user/add",
     };
 
     @Bean
@@ -38,35 +39,35 @@ public class SecurityConfig {
         /* 허용 페이지 등록 */
         http
                 .authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers(WHITE_LIST).permitAll()
-//                        .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().permitAll())
+//                        .requestMatchers("/api/v1/**").permitAll()
         /* 로그인 페이지 설정 */
-                .formLogin(form -> form
-                        .usernameParameter("username")
-                        .passwordParameter("password")
-                        .loginProcessingUrl("/login_proc")
-                        .successHandler(
-                                new AuthenticationSuccessHandler() {
-                                    @Override
-                                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                                        System.out.println("authentication : " + authentication.getName());
-                                        response.sendRedirect("/"); // 인증이 성공한 후에는 무조건 root로 이동시킴
-                                    }
-                                }
-                        )
-                        .failureHandler(
-                                new AuthenticationFailureHandler() {
-                                    @Override
-                                    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-                                        System.out.println("exception : " + exception.getMessage());
-                                        response.sendRedirect("/login");
-                                    }
-                                }
-                        )
-                        .permitAll()
-
-                ).csrf((csrf) -> csrf.disable());
+//                .formLogin(form -> form
+//                        .usernameParameter("username")
+//                        .passwordParameter("password")
+//                        .loginProcessingUrl("/login_proc")
+//                        .successHandler(
+//                                new AuthenticationSuccessHandler() {
+//                                    @Override
+//                                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//                                        System.out.println("authentication : " + authentication.getName());
+//                                        response.sendRedirect("/"); // 인증이 성공한 후에는 무조건 root로 이동시킴
+//                                    }
+//                                }
+//                        )
+//                        .failureHandler(
+//                                new AuthenticationFailureHandler() {
+//                                    @Override
+//                                    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+//                                        System.out.println("exception : " + exception.getMessage());
+//                                        response.sendRedirect("/login");
+//                                    }
+//                                }
+//                        )
+//                        .permitAll()
+//
+//                )
+                .csrf((csrf) -> csrf.disable());
         return http.build();
     }
 }

@@ -12,11 +12,14 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 
 @RestController
@@ -27,10 +30,26 @@ public class LoginController {
     private UserRepository userRepository;
     private KakaoUserInfo kakaoUserInfo;
 
+    private final static String kakaoLoginURL = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=be84e5c954c05f4d77886292167f2621&redirect_uri=https://115.85.181.92/login/oauth2/code/kakao";
+
     @Autowired
     LoginController(UserRepository userRepository, KakaoUserInfo kakaoUserInfo) {
         this.userRepository = userRepository;
         this.kakaoUserInfo = kakaoUserInfo;
+    }
+
+    @GetMapping("/kakao-login")
+    @Operation(summary = "카카오 로그인 경로", description = kakaoLoginURL, responses = {
+            @ApiResponse(responseCode = "302", description = "카카오 로그인 성공")
+    })
+    public ResponseEntity<?> kakaoLogin() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Location", kakaoLoginURL);
+        headers.setAccessControlAllowCredentials(true);
+        headers.setAccessControlAllowHeaders(Arrays.asList("*"));
+        headers.setAccessControlAllowMethods(Arrays.asList(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.OPTIONS, HttpMethod.PATCH));
+        headers.setAccessControlAllowOrigin("https://kauth.kakao.com");
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
     @PostMapping("/login")

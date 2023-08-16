@@ -1,9 +1,12 @@
 package LikeLion.UnderTheCBackend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class AddUser {
     @Schema(description = "성함")
     private String name;
