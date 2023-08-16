@@ -10,14 +10,28 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.net.MalformedURLException;
 
 @SpringBootApplication
 public class UnderTheCBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(UnderTheCBackendApplication.class, args);
+	}
+
+
+	@Bean
+	public CookieSerializer cookieSerializer() {
+		DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+		serializer.setCookieName("JSESSIONID");
+		serializer.setCookiePath("/");
+		serializer.setSameSite("None");
+		return serializer;
 	}
 
 	/* Cors 설정 */

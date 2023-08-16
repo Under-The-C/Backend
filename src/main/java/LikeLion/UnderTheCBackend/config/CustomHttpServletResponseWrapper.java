@@ -20,7 +20,7 @@ public class CustomHttpServletResponseWrapper extends HttpServletResponseWrapper
     }
 
     private String getCookieValue(Cookie cookie) {
-
+        System.out.println("쿠키 설정 cookie = " + cookie);
         StringBuilder builder = new StringBuilder();
         builder.append(cookie.getName()).append('=').append(cookie.getValue());
         builder.append(";Path=").append(cookie.getPath());
