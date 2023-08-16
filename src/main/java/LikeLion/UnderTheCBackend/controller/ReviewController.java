@@ -34,6 +34,7 @@ import java.util.Optional;
 @RequestMapping("/api/v1/review")
 
 public class  ReviewController {
+    final String imagesPath = "/src/main/resources/images/";
     ReviewRepository reviewRepository;
     ProductRepository productRepository;
     ReviewController(ReviewRepository reviewRepository, ProductRepository productRepository) {
@@ -58,15 +59,16 @@ public class  ReviewController {
         newReview.setProductId(productId);
         newReview.setDescription(description);
         newReview.setCreatedAt(new Date()); // 현재 시간 설정
-
+        //리뷰이미지 추가
         if (reviewImage != null && !reviewImage.isEmpty()) {
             String filename = reviewImage.getOriginalFilename();
             log.info("reviewImage.getOriginalFilename = {}", filename);
 
-            ClassPathResource classPathResource = new ClassPathResource("/images");
-
-            String fullPath = classPathResource + filename;
-            reviewImage.transferTo(new File(fullPath));
+            ClassPathResource classPathResource = new ClassPathResource("images/");
+            String absolutePath = System.getProperty("user.dir");;
+            String fullPath = classPathResource.getPath() + filename;
+            log.info(" absolutePath = {}", absolutePath);
+            reviewImage.transferTo(new File(absolutePath +imagesPath+filename));
         }
 
         Review savedReview = reviewRepository.save(newReview); // 리뷰 저장 후 반환
