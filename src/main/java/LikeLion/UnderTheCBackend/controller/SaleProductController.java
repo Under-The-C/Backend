@@ -3,6 +3,7 @@ package LikeLion.UnderTheCBackend.controller;
 import LikeLion.UnderTheCBackend.entity.*;
 import LikeLion.UnderTheCBackend.repository.ProductRepository;
 import LikeLion.UnderTheCBackend.repository.UserRepository;
+import LikeLion.UnderTheCBackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +26,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static LikeLion.UnderTheCBackend.entity.Role.BUYER;
+
 
 @RestController
 @Slf4j
@@ -34,12 +37,15 @@ import java.util.*;
 public class  SaleProductController {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+
+    private final UserService userService;
     private final String imagesPath = "/src/main/resources/images/";
 
     @Autowired
-    SaleProductController(ProductRepository productRepository, UserRepository userRepository) {
+    SaleProductController(ProductRepository productRepository, UserRepository userRepository, UserService userService) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.userService = userService;
     }
     @PostMapping(value="/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "판매 상품 추가", description = "Product 테이블에 상품 정보 추가", responses = {
@@ -264,9 +270,10 @@ public class  SaleProductController {
     @PostConstruct
     public void init() {
 
-        for (int i=0; i<10; ++i) {
+        for (int i=1; i<=10; ++i) {
+            userService.createUser("user"+i, "010-1234-5678"+i, "user"+i, "서울시 강남구"+i, "서울시 강남구"+i, BUYER, "certificate"+i);
             Product product = new Product();
-            User user = userRepository.findById((long) 1).orElse(null);
+            User user = userRepository.findById((long) i).orElse(null);
             product.setUserId(user);
             product.setName("상품" + i);
             product.setSubTitle("소제목" + i);
@@ -286,8 +293,6 @@ public class  SaleProductController {
 
             productKeywords.setProductKeyword(productKeyword);
             productKeywords.setProduct(product);
-
-            product.getKeywords().add(productKeywords);
 
             productRepository.save(product);
         }

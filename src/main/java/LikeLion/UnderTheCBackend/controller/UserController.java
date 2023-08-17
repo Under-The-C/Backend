@@ -236,11 +236,4 @@ public class UserController {
 //            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자를 찾을 수 없습니다.");
 //        }
 //    }
-
-    @PostConstruct
-    public void init() {
-        for (int i=0; i<10; ++i) {
-            userService.createUser("user"+i, "010-1234-5678"+i, "user"+i, "서울시 강남구"+i, "서울시 강남구"+i, BUYER, "certificate"+i);
-        }
-    }
 }
