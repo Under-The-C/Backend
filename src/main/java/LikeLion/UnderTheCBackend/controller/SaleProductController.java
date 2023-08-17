@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @RestController
@@ -78,7 +76,7 @@ public class  SaleProductController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "같은 이름의 상품이 이미 존재합니다.");
         }
         Product newProduct = new Product();
-        newProduct.setSellerId(sellerId);
+        newProduct.setUesrId(sellerId);
         newProduct.setName(name);
         newProduct.setSubTitle(subTitle);
         newProduct.setPrice(price);
@@ -256,6 +254,36 @@ public class  SaleProductController {
             return product.get();
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 ID의 상품을 찾을 수 없습니다.");
+        }
+    }
+
+    @PostConstruct
+    public void init() {
+
+        for (int i=0; i<10; ++i) {
+            Product product = new Product();
+            User user = userRepository.findById((long) i).get();
+            product.setUesrId(user);
+            product.setName("상품" + i);
+            product.setSubTitle("소제목" + i);
+            product.setPrice(new BigDecimal(1000 + i));
+            product.setDescription("설명" + i);
+            product.setSubDescription("추가설명" + i);
+            product.setMainImage("이미지" + i);
+            product.setSaleStartDate(new Date());
+            product.setSaleEndDate(new Date());
+            product.setCategory("카테고리" + i);
+            product.setViewCount(0);
+            product.setCreatedAt(new Date());
+
+            ProductKeywordConnect productKeywords = new ProductKeywordConnect();
+            ProductKeyword productKeyword = new ProductKeyword();
+            productKeyword.setKeyword("키워드" + i);
+
+            productKeywords.setProductKeyword(productKeyword);
+            productKeywords.setProduct(product);
+
+            product.getKeywords().add(productKeywords);
         }
     }
 }

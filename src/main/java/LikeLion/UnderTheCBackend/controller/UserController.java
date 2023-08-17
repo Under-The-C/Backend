@@ -11,6 +11,7 @@ import LikeLion.UnderTheCBackend.utils.KakaoUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -236,4 +237,11 @@ public class UserController {
 //            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "사용자를 찾을 수 없습니다.");
 //        }
 //    }
+
+    @PostConstruct
+    public void init() {
+        for (int i=0; i<10; ++i) {
+            userService.createUser("user"+i, "010-1234-5678"+i, "user"+i, "서울시 강남구"+i, "서울시 강남구"+i, BUYER, "certificate"+i);
+        }
+    }
 }

@@ -22,11 +22,9 @@ public class Product {
     @Column(length = 20)
     private Long id;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<ProductKeywordConnect> productKeywords = new ArrayList<>();
-
-    @Column(name="seller_id")
-    private Long sellerId;
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name="user_id", referencedColumnName = "id")
+    private User uesrId;
 
     @Column(length = 255)
     private String name;
