@@ -26,15 +26,16 @@ public class User {
     private String address;
     @Column
     private String detailAddress;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
-    private String role;
+    private Role role;
     @Column(nullable = true)
     private String profile;
     @Column(nullable = true)
     private String certificate;
 
     @Builder
-    public User(Long id, String name, String phone, String email, String address, String detailAddress, String role, String profile, String certificate) {
+    public User(Long id, String name, String phone, String email, String address, String detailAddress, Role role, String profile, String certificate) {
         this.id = id;
         this.name = name;
         this.phone = phone;
