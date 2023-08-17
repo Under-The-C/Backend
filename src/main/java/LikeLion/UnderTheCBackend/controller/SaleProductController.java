@@ -288,6 +288,8 @@ public class  SaleProductController {
             productKeywords.setProduct(product);
 
             product.getKeywords().add(productKeywords);
+
+            productRepository.save(product);
         }
     }
 }
