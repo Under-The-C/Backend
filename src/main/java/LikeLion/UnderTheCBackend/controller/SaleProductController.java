@@ -1,6 +1,7 @@
 package LikeLion.UnderTheCBackend.controller;
 
 import LikeLion.UnderTheCBackend.dto.AddProduct;
+import LikeLion.UnderTheCBackend.dto.ResponseProduct;
 import LikeLion.UnderTheCBackend.entity.*;
 import LikeLion.UnderTheCBackend.repository.ProductRepository;
 import LikeLion.UnderTheCBackend.repository.UserRepository;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static LikeLion.UnderTheCBackend.entity.Role.BUYER;
 
@@ -162,18 +165,45 @@ public class  SaleProductController {
     @Operation(summary = "판매 상품 찾기", description = "Product 테이블의 id로 특정 상품 반환", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
-    @Transactional
-    public Optional<Product> findById(@RequestParam("id") Long productId) {
-        Optional<Product> product = productRepository.findById(productId);
+    public ResponseEntity<ResponseProduct> findById(@RequestParam("id") Long productId) {
+        Optional<Product> optionalProduct = productRepository.findById(productId);
 
-        if (product.isPresent()) {
-            Product existingProduct = product.get();
-            existingProduct.setViewCount(existingProduct.getViewCount() + 1); // viewCount를 1 더해줌
-            productRepository.save(existingProduct); // 변경된 상품 정보 저장
+        if (optionalProduct.isPresent()) {
+            Product product = optionalProduct.get();
+            product.setViewCount(product.getViewCount() + 1); // viewCount를 1 더해줌
+            productRepository.save(product); // 변경된 상품 정보 저장
+
+            ResponseProduct responseProduct = convertToResponseProduct(product);
+            return ResponseEntity.ok(responseProduct);
+        } else {
+            return ResponseEntity.notFound().build();
         }
+    }
 
-
-        return product;
+    private ResponseProduct convertToResponseProduct(Product product) {
+        return new ResponseProduct(
+                product.getId(),
+                product.getUserId().getId(),
+                product.getName(),
+                product.getSubTitle(),
+                product.getPrice(),
+                product.getDescription(),
+                product.getSubDescription(),
+                product.getMainImage(),
+                product.getDetailImage().stream()
+                        .map(ProductDetailImage::getImageUrl)
+                        .collect(Collectors.toList()),
+                product.getKeywords().stream()
+                        .map(ProductKeywordConnect::getKeyword)
+                        .collect(Collectors.toList()),
+                product.getSaleStartDate(),
+                product.getSaleEndDate(),
+                product.getCategory(),
+                product.getViewCount(),
+                product.getReviewCount(),
+                product.getAverageReviewPoint(),
+                product.getCreatedAt()
+        );
     }
     @GetMapping("/view_all")
     @Operation(summary = "판매 상품 모두 찾기", description = "Product 테이블의 모든 상품 반환", responses = {
