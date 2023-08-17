@@ -99,6 +99,9 @@ public class UserController {
         else if (json.getRole().toUpperCase().equals("SELLER")) {
             role = SELLER;
         }
+        else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 유형입니다.");
+        }
         String certificate = json.getCertificate();
 
         /* 이메일로 중복 회원 체크 */
