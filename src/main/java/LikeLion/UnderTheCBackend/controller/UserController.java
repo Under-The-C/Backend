@@ -83,7 +83,7 @@ public class UserController {
     @Operation(summary = "유저 추가", description = "user 테이블에 유저 추가", responses = {
             @ApiResponse(responseCode = "200", description = "회원가입 완료")
     })
-    public String addUser(@RequestParam("access_token") String token, @RequestBody AddUser json) throws IOException {
+    public String addUser(@RequestParam("access_token") String token, @RequestBody AddUser json, @RequestParam("certificate") MultipartFile certificate) throws IOException {
         KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(token);
         if (userInfo == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "카카오 로그인에 실패하였습니다.");
@@ -103,7 +103,6 @@ public class UserController {
         else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 유형입니다.");
         }
-        MultipartFile certificate = json.getCertificate();
         String filename = certificate.getOriginalFilename();
         log.info("reviewImage.getOriginalFilename = {}", filename);
 
