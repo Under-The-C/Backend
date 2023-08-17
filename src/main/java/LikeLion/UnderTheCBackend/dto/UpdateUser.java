@@ -19,8 +19,8 @@ public class UpdateUser {
     @Schema(description = "사진")
     private MultipartFile profile;
     @Schema(description = "사업자 등록증")
-    private String certificate;
-    public UpdateUser(String name, String nickname, String phone, String address, String detailAddress, MultipartFile profile, String certificate) {
+    private MultipartFile certificate;
+    public UpdateUser(String name, String nickname, String phone, String address, String detailAddress, MultipartFile profile, MultipartFile certificate) {
         this.name = name;
         this.nickname = nickname;
         this.phone = phone;
