@@ -3,31 +3,29 @@ package LikeLion.UnderTheCBackend.controller;
 import LikeLion.UnderTheCBackend.dto.AddUser;
 import LikeLion.UnderTheCBackend.dto.KakaoUserInfoResponse;
 import LikeLion.UnderTheCBackend.dto.UpdateUser;
+import LikeLion.UnderTheCBackend.entity.Role;
 import LikeLion.UnderTheCBackend.entity.User;
 import LikeLion.UnderTheCBackend.repository.UserRepository;
 import LikeLion.UnderTheCBackend.service.UserService;
 import LikeLion.UnderTheCBackend.utils.KakaoUserInfo;
-import io.micrometer.common.util.internal.logging.InternalLogger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Optional;
+
+import static LikeLion.UnderTheCBackend.entity.Role.BUYER;
+import static LikeLion.UnderTheCBackend.entity.Role.SELLER;
 
 
 @Slf4j
@@ -94,7 +92,13 @@ public class UserController {
         String phone = json.getPhone();
         String address = json.getAddress();
         String detailAddress = json.getAddress();
-        String role = json.getRole();
+        Role role = BUYER;
+        if (json.getRole().toUpperCase().equals("BUYER")) {
+            role = BUYER;
+        }
+        else if (json.getRole().toUpperCase().equals("SELLER")) {
+            role = SELLER;
+        }
         String certificate = json.getCertificate();
 
         /* 이메일로 중복 회원 체크 */
