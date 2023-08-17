@@ -1,7 +1,9 @@
 package LikeLion.UnderTheCBackend.controller;
 
 import LikeLion.UnderTheCBackend.entity.Product;
+import LikeLion.UnderTheCBackend.entity.User;
 import LikeLion.UnderTheCBackend.repository.ProductRepository;
+import LikeLion.UnderTheCBackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,10 +24,12 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RequestMapping("/api/v1/search_product")
 
 public class SearchProductController {
-    ProductRepository productRepository;
+    private final ProductRepository productRepository;
+    private final UserService userService;
 
-    SearchProductController(ProductRepository productRepository) {
+    SearchProductController(ProductRepository productRepository, UserService userService) {
         this.productRepository = productRepository;
+        this.userService = userService;
     }
 
     @GetMapping("/all")
@@ -114,7 +118,8 @@ public class SearchProductController {
     })
     @Transactional
     public List<Product> findBySellerId(@RequestParam("id") Long sellerId) {
-        List<Product> product = productRepository.findBySellerId(sellerId);
+        User user = userService.findUser(sellerId);
+        List<Product> product = productRepository.findByUserId(user);
         return product;
     }
 
@@ -129,7 +134,8 @@ public class SearchProductController {
             throw new ResponseStatusException(BAD_REQUEST, "로그인 되어 있지 않습니다.");
         }
         Long myId = (Long) session.getAttribute("user");
-        List<Product> product = productRepository.findBySellerId(myId);
+        User user = userService.findUser(myId);
+        List<Product> product = productRepository.findByUserId(user);
         return product;
     }
 }

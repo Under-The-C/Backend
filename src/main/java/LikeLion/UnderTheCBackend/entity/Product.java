@@ -24,7 +24,7 @@ public class Product {
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="user_id", referencedColumnName = "id")
-    private User uesrId;
+    private User userId;
 
     @Column(length = 255)
     private String name;

@@ -68,6 +68,10 @@ public class  SaleProductController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
         }
         Long sellerId = (Long) session.getAttribute("user");
+        User user = userRepository.findById(sellerId).orElse(null);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
 
         //같은 이름의 상품은 생성 불가
         Optional<Product> existingProduct = productRepository.findByName(name);
@@ -76,7 +80,7 @@ public class  SaleProductController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "같은 이름의 상품이 이미 존재합니다.");
         }
         Product newProduct = new Product();
-        newProduct.setUesrId(sellerId);
+        newProduct.setUserId(user);
         newProduct.setName(name);
         newProduct.setSubTitle(subTitle);
         newProduct.setPrice(price);
@@ -262,8 +266,8 @@ public class  SaleProductController {
 
         for (int i=0; i<10; ++i) {
             Product product = new Product();
-            User user = userRepository.findById((long) i).get();
-            product.setUesrId(user);
+            User user = userRepository.findById((long) 1).orElse(null);
+            product.setUserId(user);
             product.setName("상품" + i);
             product.setSubTitle("소제목" + i);
             product.setPrice(new BigDecimal(1000 + i));

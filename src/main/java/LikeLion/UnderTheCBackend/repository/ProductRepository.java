@@ -1,6 +1,7 @@
 package LikeLion.UnderTheCBackend.repository;
 
 import LikeLion.UnderTheCBackend.entity.Product;
+import LikeLion.UnderTheCBackend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -43,8 +44,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findAllByNameContainingAndKeywordsContainingOrderByViewCountDesc(String productName, String keywords);
 
-    List<Product> findAllByNameContainingOrProductKeywordsKeywordContainingOrderByCreatedAtDesc(String productName, String productName1);
-
     List<Product> findAllByNameContainingOrKeywordsKeywordContainingOrderByCreatedAtDesc(String productName, String productName1);
 
     List<Product> findAllByNameContainingOrKeywordsKeywordContainingOrderByPrice(String search, String search1);
@@ -65,7 +64,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findAllByNameContainingOrKeywordsKeywordContainingAndCategoryOrderByReviewCountDesc(String search, String search1, String category);
 
-    List<Product> findBySellerId(Long sellerId);
+    List<Product> findByUserId(User userId);
 
     List<Product> findAllByCategoryOrderByCreatedAtDesc(String category);
 
