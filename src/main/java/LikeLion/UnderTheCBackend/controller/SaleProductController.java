@@ -1,5 +1,6 @@
 package LikeLion.UnderTheCBackend.controller;
 
+import LikeLion.UnderTheCBackend.dto.AddProduct;
 import LikeLion.UnderTheCBackend.entity.*;
 import LikeLion.UnderTheCBackend.repository.ProductRepository;
 import LikeLion.UnderTheCBackend.repository.UserRepository;
@@ -13,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static LikeLion.UnderTheCBackend.entity.Role.BUYER;
@@ -39,7 +40,7 @@ public class  SaleProductController {
     private final UserRepository userRepository;
 
     private final UserService userService;
-    private final String imagesPath = "/src/main/resources/images/";
+    private final static String IMAGE_PATH = "/src/main/resources/images/";
 
     @Autowired
     SaleProductController(ProductRepository productRepository, UserRepository userRepository, UserService userService) {
@@ -47,24 +48,32 @@ public class  SaleProductController {
         this.userRepository = userRepository;
         this.userService = userService;
     }
+
+    private boolean mkdir(String path) {
+        String absolutePath = System.getProperty("user.dir");
+        File Folder = new File(absolutePath + path);
+        // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
+        if (!Folder.exists()) {
+            try {
+                Folder.mkdirs(); //폴더 생성합니다.
+                System.out.println("폴더가 생성되었습니다.");
+                return true;
+            }
+            catch(Exception e){
+                e.getStackTrace();
+                return false;
+            }
+        } else {
+            System.out.println("이미 폴더가 생성되어 있습니다.");
+            return true;
+        }
+    }
+
     @PostMapping(value="/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "판매 상품 추가", description = "Product 테이블에 상품 정보 추가", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
-    public Product addByProductName(
-            @RequestParam String name,
-            @RequestParam(required = false) String subTitle,
-            @RequestParam(required = false) BigDecimal price,
-            @RequestParam(required = false) String description,
-            @RequestParam(required = false) String subDescription,
-            @RequestParam(required = false) MultipartFile mainImage,
-            @RequestParam(required = false) List<String> keyword,
-            @RequestParam(required = false) List<String> detailImage,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleStartDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleEndDate,
-            @RequestParam(required = false) String category,
-            HttpServletRequest request
-    ) throws IOException {
+    public String addByProductName(@ModelAttribute AddProduct data, HttpServletRequest request) throws IOException {
         //로그인 정보 왜래키로 받아 Product테이블의 seller_id에 set 필요
         //로그인 정보 예외처리 필요
 
@@ -76,72 +85,77 @@ public class  SaleProductController {
         Long sellerId = (Long) session.getAttribute("user");
         User user = userRepository.findById(sellerId).orElse(null);
         if (user == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "가입 되어 있지 않습니다.");
         }
 
+        List<String> keyword = data.getKeyword();
+        MultipartFile mainImage = data.getMainImage();
+        List<MultipartFile> detailImage = data.getDetailImage();
+
         //같은 이름의 상품은 생성 불가
-        Optional<Product> existingProduct = productRepository.findByName(name);
+        Optional<Product> existingProduct = productRepository.findByName(data.getName());
         if (existingProduct.isPresent()) {
             // 이미 해당 이름의 상품이 존재하는 경우 예외 처리
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "같은 이름의 상품이 이미 존재합니다.");
         }
         Product newProduct = new Product();
         newProduct.setUserId(user);
-        newProduct.setName(name);
-        newProduct.setSubTitle(subTitle);
-        newProduct.setPrice(price);
-        newProduct.setDescription(description);
-        newProduct.setSubDescription(subDescription);
-//        newProduct.setMain_image(mainImage);
+        newProduct.setName(data.getName());
+        newProduct.setSubTitle(data.getSubTitle());
+        newProduct.setPrice(new BigDecimal(data.getPrice()));
+        newProduct.setDescription(data.getDescription());
+        newProduct.setSubDescription(data.getSubDescription());
+        newProduct.setMainImage(mainImage.getOriginalFilename());
+
         List<ProductKeywordConnect> keywordEntities = new ArrayList<>();
         for (String keywordStr : keyword) {
             ProductKeywordConnect keywords = new ProductKeywordConnect();
-
             keywords.setKeyword(keywordStr);
             keywordEntities.add(keywords);
         }
         newProduct.setKeywords(keywordEntities);
 
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yy_MM_dd");
+        String absolutePath = System.getProperty("user.dir");;
+
         //메인이미지 파일 저장
         if (mainImage != null && !mainImage.isEmpty()) {
             String filename = mainImage.getOriginalFilename();
             log.info("mainImage.getOriginalFilename = {}", filename);
-
-            String absolutePath = System.getProperty("user.dir");;
             log.info(" absolutePath = {}", absolutePath);
-            File Folder = new File(absolutePath+imagesPath);
+
             // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
-            if (!Folder.exists()) {
-                try{
-                    Folder.mkdirs(); //폴더 생성합니다.
-                    System.out.println("폴더가 생성되었습니다.");
-                }
-                catch(Exception e){
-                    e.getStackTrace();
-                }
-            }else {
-                System.out.println("이미 폴더가 생성되어 있습니다.");
+            if (mkdir(IMAGE_PATH)) {
+                log.info("폴더가 생성되었습니다.");
+            } else {
+                log.info("폴더가 생성되지 않았습니다.");
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "폴더가 생성되지 않았습니다.");
             }
-            mainImage.transferTo(new File(absolutePath +imagesPath+filename));
-            newProduct.setMainImage(filename);
+
+            String randomStr = formatter.format(date) + UUID.randomUUID();
+            newProduct.setMainImage(randomStr + filename);
+            mainImage.transferTo(new File(absolutePath + IMAGE_PATH + newProduct.getMainImage()));
         }
 
         // 이미지 URL 리스트에서 ReviewImage 엔티티를 생성합니다.
         List<ProductDetailImage> detailImages = new ArrayList<>();
-        for (String imageUrl : detailImage) {
+        for (MultipartFile image : detailImage) {
             ProductDetailImage productDetailImage = new ProductDetailImage();
-            productDetailImage.setImageUrl(imageUrl);
+            String randomStr = formatter.format(date) + UUID.randomUUID();
+            productDetailImage.setImageUrl(randomStr + image.getOriginalFilename());
             detailImages.add(productDetailImage);
+            image.transferTo(new File(absolutePath + IMAGE_PATH + productDetailImage.getImageUrl()));
         }
         newProduct.setDetailImage(detailImages);
-        newProduct.setSaleStartDate(saleStartDate);
-        newProduct.setSaleEndDate(saleEndDate);
-        newProduct.setCategory(category);
+        newProduct.setSaleStartDate(data.getSaleStartDate());
+        newProduct.setSaleEndDate(data.getSaleEndDate());
+        newProduct.setCategory(data.getCategory());
         newProduct.setViewCount(0); // 초기 viewCount 설정
-        newProduct.setCreatedAt(new Date()); // 현재 시간 설정
+        newProduct.setCreatedAt(date); // 현재 시간 설정
 
         productRepository.save(newProduct);
-        return newProduct;
+        return "success";
     }
 
     @GetMapping("/view") //조회수
@@ -176,71 +190,85 @@ public class  SaleProductController {
     @Operation(summary = "판매 상품 수정", description = "product table의 id 입력받아 판매 상품 수정", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
-    public Product updateProduct(
-            @PathVariable("id") Long productId,
-            @RequestParam Long sellerId,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String subTitle,
-            @RequestParam(required = false) BigDecimal price,
-            @RequestParam(required = false) String description,
-            @RequestParam(required = false) String subDescription,
-            @RequestParam(required = false) MultipartFile mainImage,
-            @RequestParam(required = false) List<String> keyword,
-            @RequestParam(required = false) List<String> detailImage,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleStartDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date saleEndDate,
-            @RequestParam(required = false) String category
-    ) {
-
+    public String updateProduct(@PathVariable("id") Long productId, @ModelAttribute AddProduct data, HttpServletRequest request) throws IOException {
+        // 로그인한 유저인지 확인
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
+        }
         Optional<Product> optionalProduct = productRepository.findById(productId);
         if (optionalProduct.isPresent()) {
             Product product = optionalProduct.get();
 
+            // 날짜 설정
+            Date date = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("yy_MM_dd");
+            String absolutePath = System.getProperty("user.dir");;
+
             // 판매 상품 객체에 productRequest로부터 값을 업데이트합니다.
-            if (name != null) {
-                Optional<Product> existingProduct = productRepository.findByName(name);
+            if (data.getName() != null) {
+                Optional<Product> existingProduct = productRepository.findByName(data.getName());
                 if (existingProduct.isPresent() && !product.getId().equals(existingProduct.get().getId())) {
                     // 이미 해당 이름의 상품이 존재하는 경우 예외 처리
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "같은 이름의 상품이 이미 존재합니다.");
                 }
-                product.setName(name);
+                product.setName(data.getName());
             }
-            if (category != null)
-                product.setCategory(category);
-            if (price != null)
-                product.setPrice(price);
-            if (keyword != null) {
+            if (data.getCategory() != null)
+                product.setCategory(data.getCategory());
+            if (data.getPrice() != null)
+                product.setPrice(new BigDecimal(data.getPrice()));
+            if (data.getKeyword() != null) {
                 List<ProductKeywordConnect> updatedKeywords = new ArrayList<>();
-                for (String keywordStr : keyword) {
+                for (String keywordStr : data.getKeyword()) {
                     ProductKeywordConnect keywordEntity = new ProductKeywordConnect();
                     keywordEntity.setKeyword(keywordStr);
                     updatedKeywords.add(keywordEntity);
                 }
                 product.setKeywords(updatedKeywords);
             }
-            if (detailImage != null) {
+            if (data.getDetailImage() != null) {
+                // 기존 상품 이미지 삭제
+                for (ProductDetailImage productDetailImage : product.getDetailImage()) {
+                    String srcFileName = productDetailImage.getImageUrl();
+                    if (srcFileName != null) {
+                        File file = new File(absolutePath + IMAGE_PATH + srcFileName);
+                        file.delete();
+                    }
+                }
                 List<ProductDetailImage> updatedDetailImages = new ArrayList<>();
-                for (String imageUrl : detailImage) {
+                for (MultipartFile imageUrl : data.getDetailImage()) {
                     ProductDetailImage productDetailImage = new ProductDetailImage();
-                    productDetailImage.setImageUrl(imageUrl);
+                    String randomStr = formatter.format(date) + UUID.randomUUID();
+                    productDetailImage.setImageUrl(randomStr + imageUrl.getOriginalFilename());
                     updatedDetailImages.add(productDetailImage);
+                    imageUrl.transferTo(new File(absolutePath + IMAGE_PATH + productDetailImage.getImageUrl()));
                 }
                 product.setDetailImage(updatedDetailImages);
             }
-            if (description != null)
-                product.setDescription(description);
-            if (saleStartDate != null)
-                product.setSaleStartDate(saleStartDate);
-            if (saleEndDate != null)
-                product.setSaleEndDate(saleEndDate);
-            if (subTitle != null)
-                product.setSubTitle(subTitle);
-            if (subDescription != null)
-                product.setSubDescription(subDescription);/*
-            if (mainImage != null) //이미지 관련 DB접근은 수정 필요함
-                product.setMain_image(mainImage);*/
+            if (data.getDescription() != null)
+                product.setDescription(data.getDescription());
+            if (data.getSaleStartDate() != null)
+                product.setSaleStartDate(data.getSaleStartDate());
+            if (data.getSaleEndDate() != null)
+                product.setSaleEndDate(data.getSaleEndDate());
+            if (data.getSubTitle() != null)
+                product.setSubTitle(data.getSubTitle());
+            if (data.getSubDescription() != null)
+                product.setSubDescription(data.getSubDescription());
+            MultipartFile mainImage = data.getMainImage();
+            if (mainImage != null) {
+                // 기존 메인 이미지 삭제
+                String srcFileName = product.getMainImage();
+                if (srcFileName != null) {
+                    File file = new File(absolutePath + IMAGE_PATH + srcFileName);
+                    file.delete();
+                }
+                product.setMainImage(mainImage.getOriginalFilename());
+                mainImage.transferTo(new File(absolutePath + IMAGE_PATH + product.getMainImage()));
+            }
             productRepository.save(product);
-            return product;
+            return "success";
         }else {
             //예외처리
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 ID의 상품을 찾을 수 없습니다.");
@@ -250,21 +278,19 @@ public class  SaleProductController {
     @Operation(summary = "판매 상품 삭제", description = "Product 테이블에 지정된 id로 판매 상품 삭제", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })
-    public Product deleteById(@RequestParam("productId") Long productId) {
-
-        //String sellerId = seller.getId(); seller테이블 받으면 구현 재개
-
-        Optional<Product> product = productRepository.findById(productId);
-
-        if (product.isPresent()) {/* seller테이블 받으면 구현 재개
-                if (!product.get().getSeller_id().equals(sellerId)){
-                    throw new IllegalArgumentException("해당 상품의 판매자만 삭제할 수 있습니다.");
-                }*/
-            productRepository.deleteById(productId);
-            return product.get();
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 ID의 상품을 찾을 수 없습니다.");
+    public String deleteById(@PathVariable("id") Long productId, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "로그인 되어 있지 않습니다.");
         }
+        Long userId = (Long) session.getAttribute("user");
+        if (userId != productId) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 상품의 판매자만 삭제할 수 있습니다.");
+        }
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 ID의 상품을 찾을 수 없습니다."));
+        productRepository.delete(product);
+        return "success";
     }
 
     @PostConstruct

@@ -83,7 +83,7 @@ public class UserController {
     @Operation(summary = "유저 추가", description = "user 테이블에 유저 추가", responses = {
             @ApiResponse(responseCode = "200", description = "회원가입 완료")
     })
-    public String addUser(@RequestParam("access_token") String token, @RequestBody AddUser json, @RequestParam("certificate") MultipartFile certificate) throws IOException {
+    public String addUser(@RequestParam("access_token") String token, @ModelAttribute AddUser json) throws IOException {
         KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(token);
         if (userInfo == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "카카오 로그인에 실패하였습니다.");
@@ -93,7 +93,15 @@ public class UserController {
         String phone = json.getPhone();
         String address = json.getAddress();
         String detailAddress = json.getAddress();
-        Role role = BUYER;
+        if (name == null || phone == null || address == null || detailAddress == null) {
+            log.info("name = {}", name);
+            log.info("phone = {}", phone);
+            log.info("address = {}", address);
+            log.info("detailAddress = {}", detailAddress);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "입력되지 않은 정보가 있습니다.");
+        }
+
+        Role role;
         if (json.getRole().toUpperCase().equals("BUYER")) {
             role = BUYER;
         }
@@ -103,6 +111,7 @@ public class UserController {
         else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 유형입니다.");
         }
+        MultipartFile certificate = json.getCertificate();
         String filename = certificate.getOriginalFilename();
         log.info("reviewImage.getOriginalFilename = {}", filename);
 
