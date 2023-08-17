@@ -18,15 +18,12 @@ public class AddUser {
     private String detailAddress;
     @Schema(description = "유형")
     private String role;
-    @Schema(description = "사업자 등록증")
-    private MultipartFile certificate;
 
-    public AddUser(String name, String phone, String address, String detailAddress, String role, MultipartFile certificate) {
+    public AddUser(String name, String phone, String address, String detailAddress, String role) {
         this.name = name;
         this.phone = phone;
         this.address = address;
         this.detailAddress = detailAddress;
         this.role = role;
-        this.certificate = certificate;
     }
 }
