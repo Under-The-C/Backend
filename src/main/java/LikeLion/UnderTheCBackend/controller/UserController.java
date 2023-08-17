@@ -78,11 +78,11 @@ public class UserController {
         }
     }
 
-    @PostMapping("/add")
+    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "유저 추가", description = "user 테이블에 유저 추가", responses = {
             @ApiResponse(responseCode = "200", description = "회원가입 완료")
     })
-    public String addUser(@RequestParam("access_token") String token, @RequestBody AddUser json) {
+    public String addUser(@RequestParam("access_token") String token, @RequestBody AddUser json) throws IOException {
         KakaoUserInfoResponse userInfo = kakaoUserInfo.getUserInfo(token);
         if (userInfo == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "카카오 로그인에 실패하였습니다.");
@@ -102,14 +102,34 @@ public class UserController {
         else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 유형입니다.");
         }
-        String certificate = json.getCertificate();
+        MultipartFile certificate = json.getCertificate();
+        String filename = certificate.getOriginalFilename();
+        log.info("reviewImage.getOriginalFilename = {}", filename);
+
+        String absolutePath = System.getProperty("user.dir");
+        log.info(" absolutePath = {}", absolutePath);
+        String checkPath = absolutePath +imagesPath+filename; //폴더 경로
+        File Folder = new File(checkPath);
+        // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
+        if (!Folder.exists()) {
+            try{
+                Folder.mkdir(); //폴더 생성합니다.
+                System.out.println("폴더가 생성되었습니다.");
+            }
+            catch(Exception e){
+                e.getStackTrace();
+            }
+        }else {
+            System.out.println("이미 폴더가 생성되어 있습니다.");
+        }
+        certificate.transferTo(new File(absolutePath +imagesPath+filename));
 
         /* 이메일로 중복 회원 체크 */
         userRepository.findByEmail(email).ifPresent(user -> {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "회원가입 실패. 중복회원입니다.");
         });
 
-        userService.createUser(name, phone, email, address, detailAddress, role, certificate);
+        userService.createUser(name, phone, email, address, detailAddress, role, filename);
 
         return "success";
     }
@@ -133,7 +153,7 @@ public class UserController {
         String address = json.getAddress();
         String detailAddress = json.getDetailAddress();
         MultipartFile profile = json.getProfile();
-        String certificate = json.getCertificate();
+        MultipartFile certificate = json.getCertificate();
 
         User afterUser = beforeUser.get();
 
@@ -142,19 +162,18 @@ public class UserController {
             afterUser.setPhone(phone);
             afterUser.setAddress(address);
             afterUser.setDetailAddress(detailAddress);
-            afterUser.setCertificate(certificate);
 
-            String filename = profile.getOriginalFilename();
-            log.info("reviewImage.getOriginalFilename = {}", filename);
+            String filename1 = certificate.getOriginalFilename();
+            log.info("reviewImage.getOriginalFilename = {}", filename1);
 
-            String absolutePath = System.getProperty("user.dir");;
-            log.info(" absolutePath = {}", absolutePath);
-            String checkPath = absolutePath +imagesPath+filename; //폴더 경로
-            File Folder = new File(checkPath);
+            String absolutePath1 = System.getProperty("user.dir");;
+            log.info(" absolutePath = {}", absolutePath1);
+            String checkPath1 = absolutePath1 +imagesPath+filename1; //폴더 경로
+            File Folder1 = new File(checkPath1);
             // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
-            if (!Folder.exists()) {
+            if (!Folder1.exists()) {
                 try{
-                    Folder.mkdir(); //폴더 생성합니다.
+                    Folder1.mkdir(); //폴더 생성합니다.
                     System.out.println("폴더가 생성되었습니다.");
                 }
                 catch(Exception e){
@@ -163,8 +182,30 @@ public class UserController {
             }else {
                 System.out.println("이미 폴더가 생성되어 있습니다.");
             }
-            profile.transferTo(new File(absolutePath +imagesPath+filename));
-            afterUser.setProfile(filename);
+            profile.transferTo(new File(absolutePath1 +imagesPath+filename1));
+            afterUser.setProfile(filename1);
+
+            String filename2 = profile.getOriginalFilename();
+            log.info("reviewImage.getOriginalFilename = {}", filename2);
+
+            String absolutePath2 = System.getProperty("user.dir");;
+            log.info(" absolutePath = {}", absolutePath2);
+            String checkPath2 = absolutePath2 +imagesPath+filename2; //폴더 경로
+            File Folder2 = new File(checkPath2);
+            // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
+            if (!Folder2.exists()) {
+                try{
+                    Folder2.mkdir(); //폴더 생성합니다.
+                    System.out.println("폴더가 생성되었습니다.");
+                }
+                catch(Exception e){
+                    e.getStackTrace();
+                }
+            }else {
+                System.out.println("이미 폴더가 생성되어 있습니다.");
+            }
+            profile.transferTo(new File(absolutePath2 +imagesPath+filename2));
+            afterUser.setProfile(filename2);
 
             userRepository.save(afterUser);
         }
