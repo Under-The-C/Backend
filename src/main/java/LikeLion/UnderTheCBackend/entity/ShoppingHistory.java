@@ -1,10 +1,7 @@
 package LikeLion.UnderTheCBackend.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -14,6 +11,7 @@ import java.util.Date;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@NoArgsConstructor
 @Table(name = "shopping_history")
 public class ShoppingHistory {
     @Id

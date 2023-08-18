@@ -12,6 +12,7 @@ import java.util.Date;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@NoArgsConstructor
 @Table(name = "payment")
 public class B_Payment {
     @Id
