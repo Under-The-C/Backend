@@ -84,8 +84,9 @@ public class OAuthController {
         String token = kakaoTokenResponse.getAccess_token();
 
         // 카카오 연동 해제
-        KakaoUserInfoResponse kakaoUserInfoResponse = kakaoUserInfo.postUnlink(token);
+        KakaoUserInfoResponse kakaoUserInfoResponse = kakaoUserInfo.getUserInfo(token);
         String email = kakaoUserInfoResponse.getKakao_account().getEmail();
+        kakaoUserInfo.postUnlink(token);
 
         User user = userRepository.findByEmail(email).orElse(null);
         HttpHeaders headers = new HttpHeaders();
