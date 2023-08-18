@@ -92,10 +92,14 @@ public class OAuthController {
         HttpHeaders headers = new HttpHeaders();
         if (user != null) {
             /* User 정보 삭제 */
+            log.info("카카오 연동 해제에 성공하였습니다.");
             userService.deleteUser(email);
             headers.setLocation(URI.create(redirectReactUrl + "delete-success"));
         }
-        headers.setLocation(URI.create(redirectReactUrl));
+        else {
+            log.info("카카오 연동 해제에 실패하였습니다.");
+            headers.setLocation(URI.create(redirectReactUrl));
+        }
 
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
