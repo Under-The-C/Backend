@@ -339,7 +339,15 @@ public class  SaleProductController {
             product.setMainImage("이미지" + i);
             product.setSaleStartDate(new Date());
             product.setSaleEndDate(new Date());
-            product.setCategory("카테고리" + i);
+            String tempCategory;
+            if(i%3 == 1) {
+                tempCategory = "과일";
+            }else if(i%3 ==2) {
+                tempCategory = "채소";
+            }else{
+                tempCategory = "잡곡";
+            }
+            product.setCategory(tempCategory);
             product.setViewCount(0);
             product.setCreatedAt(new Date());
 
