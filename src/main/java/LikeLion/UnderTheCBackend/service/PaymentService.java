@@ -71,7 +71,7 @@ public class PaymentService {
             Product product = opt.orElseThrow((() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "product_id가 잘못되었습니다.")));
 
             log.info("product.getPrice() = " + product.getPrice());
-            priceSum.add(product.getPrice());
+            priceSum.add(new BigDecimal(product.getPrice().toString()));
             log.info("priceSum = " + priceSum);
 
             /* 결제 상품 하나씩 등록 */
