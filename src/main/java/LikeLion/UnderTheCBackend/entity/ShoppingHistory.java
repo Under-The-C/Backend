@@ -37,10 +37,10 @@ public class ShoppingHistory {
     @Column(nullable = false, columnDefinition = "varchar(10)")
     private String status;
 
-    @Column(name = "imp_uid", nullable = false, columnDefinition = "varchar(20)")
+    @Column(name = "imp_uid", columnDefinition = "varchar(20)")
     private String impUid;
 
-    @Column(name = "merchant_uid", nullable = false, columnDefinition = "varchar(20)")
+    @Column(name = "merchant_uid", columnDefinition = "varchar(20)")
     private String merchantUid;
 
     @CreatedDate
