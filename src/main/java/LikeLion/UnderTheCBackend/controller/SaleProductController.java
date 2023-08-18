@@ -351,12 +351,17 @@ public class  SaleProductController {
             product.setViewCount(0);
             product.setCreatedAt(new Date());
 
-            ProductKeywordConnect productKeywords = new ProductKeywordConnect();
-            ProductKeyword productKeyword = new ProductKeyword();
-            productKeyword.setKeyword("키워드" + i);
+            List<ProductKeywordConnect>list = new ArrayList<>();
+            for (int j=1; j<=3; ++j) {
+                ProductKeywordConnect productKeywords = new ProductKeywordConnect();
+                ProductKeyword productKeyword = new ProductKeyword();
+                productKeyword.setKeyword("키워드" + j);
 
-            productKeywords.setProductKeyword(productKeyword);
-            productKeywords.setProduct(product);
+                productKeywords.setProductKeyword(productKeyword);
+                productKeywords.setProduct(product);
+                list.add(productKeywords);
+            }
+            product.setKeywords(list);
 
             productRepository.save(product);
         }

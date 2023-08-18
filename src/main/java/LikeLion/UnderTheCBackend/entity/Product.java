@@ -45,7 +45,7 @@ public class Product {
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "detail_image")
-    private List<ProductDetailImage> detailImage;
+    private List<ProductDetailImage> detailImage = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "product_keyword")
