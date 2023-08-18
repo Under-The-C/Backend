@@ -129,18 +129,21 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 유형입니다.");
         }
         MultipartFile certificate = json.getCertificate();
-        String filename = certificate.getOriginalFilename();
-        log.info("reviewImage.getOriginalFilename = {}", filename);
+        String filename = null;
+        if (certificate != null) {
+            filename = certificate.getOriginalFilename();
+            log.info("reviewImage.getOriginalFilename = {}", filename);
 
-        String absolutePath = System.getProperty("user.dir");
-        log.info(" absolutePath = {}", absolutePath);
-        if (mkdir(imagesPath)) {
-            log.info("폴더가 생성되었습니다.");
+            String absolutePath = System.getProperty("user.dir");
+            log.info(" absolutePath = {}", absolutePath);
+            if (mkdir(imagesPath)) {
+                log.info("폴더가 생성되었습니다.");
+            }
+            else {
+                log.info("이미 폴더가 생성되어 있습니다.");
+            }
+            certificate.transferTo(new File(absolutePath + imagesPath + filename));
         }
-        else {
-            log.info("이미 폴더가 생성되어 있습니다.");
-        }
-        certificate.transferTo(new File(absolutePath + imagesPath + filename));
 
         /* 이메일로 중복 회원 체크 */
         userRepository.findByEmail(email).ifPresent(user -> {
