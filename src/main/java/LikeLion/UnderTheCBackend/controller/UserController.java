@@ -112,7 +112,7 @@ public class UserController {
         String name = json.getName();
         String phone = json.getPhone();
         String address = json.getAddress();
-        String detailAddress = json.getAddress();
+        String detailAddress = json.getDetailAddress();
         if (name == null || phone == null || address == null || detailAddress == null) {
             log.info("name = {}", name);
             log.info("phone = {}", phone);
