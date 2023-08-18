@@ -17,6 +17,7 @@ public class ImageService {
 
     public ResponseEntity<byte[]> downloadImage(String imageName) throws IOException {
         ClassPathResource imageFile = new ClassPathResource("images/" + imageName);
+        log.info("이미지 경로 = " + imageFile.getURL());
         if (!imageFile.exists()) {
             log.info("이미지를 찾을 수 없습니다.");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다.");
