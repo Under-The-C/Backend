@@ -43,11 +43,11 @@ public class Product {
     @Column(length = 255, name="main_image")
     private String mainImage; //image 저장방법 확인 후 수정필요함
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "detail_image")
     private List<ProductDetailImage> detailImage = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name = "product_keyword")
     private List<ProductKeywordConnect> keywords = new ArrayList<>();
 

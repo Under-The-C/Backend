@@ -51,8 +51,4 @@ public class ShoppingHistory {
 
     @LastModifiedDate
     private Date updated_at;
-
-    public ShoppingHistory() {
-
-    }
 }

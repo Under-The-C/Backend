@@ -13,11 +13,11 @@ public class ProductKeywordConnect {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="product_id",referencedColumnName = "id")
     private Product product;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="producKeyword_id", referencedColumnName = "id")
     private ProductKeyword productKeyword;
 
