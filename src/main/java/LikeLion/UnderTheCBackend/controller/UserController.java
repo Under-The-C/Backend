@@ -44,6 +44,23 @@ public class UserController {
         this.kakaoUserInfo = kakaoUserInfo;
     }
 
+    private boolean mkdir(String path) {
+        String absolutePath = System.getProperty("user.dir");
+        File Folder = new File(absolutePath + path);
+        // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
+        if (!Folder.exists()) {
+            try {
+                return Folder.mkdirs(); //폴더 생성합니다.
+            }
+            catch(Exception e){
+                e.getStackTrace();
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
     @GetMapping("")
     @Operation(summary = "유저 정보 보기", description = "user 테이블에 지정된 id로 유저 정보 반환", responses = {
             @ApiResponse(responseCode = "200", description = "조회 성공")
@@ -117,21 +134,13 @@ public class UserController {
 
         String absolutePath = System.getProperty("user.dir");
         log.info(" absolutePath = {}", absolutePath);
-        String checkPath = absolutePath +imagesPath+filename; //폴더 경로
-        File Folder = new File(checkPath);
-        // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
-        if (!Folder.exists()) {
-            try{
-                Folder.mkdir(); //폴더 생성합니다.
-                System.out.println("폴더가 생성되었습니다.");
-            }
-            catch(Exception e){
-                e.getStackTrace();
-            }
-        }else {
-            System.out.println("이미 폴더가 생성되어 있습니다.");
+        if (mkdir(imagesPath)) {
+            log.info("폴더가 생성되었습니다.");
         }
-        certificate.transferTo(new File(absolutePath +imagesPath+filename));
+        else {
+            log.info("이미 폴더가 생성되어 있습니다.");
+        }
+        certificate.transferTo(new File(absolutePath + imagesPath + filename));
 
         /* 이메일로 중복 회원 체크 */
         userRepository.findByEmail(email).ifPresent(user -> {
@@ -165,6 +174,7 @@ public class UserController {
         MultipartFile certificate = json.getCertificate();
 
         User afterUser = beforeUser.get();
+        String absolutePath = System.getProperty("user.dir");;
 
         if(beforeUser.isPresent()) {
             afterUser.setName(name);
@@ -175,31 +185,22 @@ public class UserController {
             String filename1 = certificate.getOriginalFilename();
             log.info("reviewImage.getOriginalFilename = {}", filename1);
 
-            String absolutePath1 = System.getProperty("user.dir");;
-            log.info(" absolutePath = {}", absolutePath1);
-            String checkPath1 = absolutePath1 +imagesPath+filename1; //폴더 경로
-            File Folder1 = new File(checkPath1);
+            log.info(" absolutePath = {}", absolutePath);
+
             // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
-            if (!Folder1.exists()) {
-                try{
-                    Folder1.mkdir(); //폴더 생성합니다.
-                    System.out.println("폴더가 생성되었습니다.");
-                }
-                catch(Exception e){
-                    e.getStackTrace();
-                }
-            }else {
-                System.out.println("이미 폴더가 생성되어 있습니다.");
+            if (mkdir(imagesPath)) {
+                log.info("폴더가 생성되었습니다.");
             }
-            profile.transferTo(new File(absolutePath1 +imagesPath+filename1));
+            else {
+                log.info("이미 폴더가 생성되어 있습니다.");
+            }
+            profile.transferTo(new File(absolutePath +imagesPath + filename1));
             afterUser.setProfile(filename1);
 
             String filename2 = profile.getOriginalFilename();
             log.info("reviewImage.getOriginalFilename = {}", filename2);
 
-            String absolutePath2 = System.getProperty("user.dir");;
-            log.info(" absolutePath = {}", absolutePath2);
-            String checkPath2 = absolutePath2 +imagesPath+filename2; //폴더 경로
+            String checkPath2 = absolutePath +imagesPath+filename2; //폴더 경로
             File Folder2 = new File(checkPath2);
             // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
             if (!Folder2.exists()) {
@@ -213,7 +214,7 @@ public class UserController {
             }else {
                 System.out.println("이미 폴더가 생성되어 있습니다.");
             }
-            profile.transferTo(new File(absolutePath2 +imagesPath+filename2));
+            profile.transferTo(new File(absolutePath +imagesPath+filename2));
             afterUser.setProfile(filename2);
 
             userRepository.save(afterUser);

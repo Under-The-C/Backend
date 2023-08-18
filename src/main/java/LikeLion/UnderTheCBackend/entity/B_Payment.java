@@ -51,4 +51,8 @@ public class B_Payment {
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="user_id", referencedColumnName = "id")
     private User UserId;
+
+    public B_Payment() {
+
+    }
 }

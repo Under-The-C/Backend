@@ -37,4 +37,8 @@ public class ShoppingList {
     @NonNull
     @Column(nullable = false)
     private Integer count;
+
+    public ShoppingList() {
+
+    }
 }
