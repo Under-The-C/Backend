@@ -15,8 +15,11 @@ import java.io.InputStream;
 @Service
 public class ImageService {
 
+    private final static String IMAGE_PATH = "/src/main/resources/images/";
+
     public ResponseEntity<byte[]> downloadImage(String imageName) throws IOException {
-        ClassPathResource imageFile = new ClassPathResource("images/" + imageName);
+        String absolutePath = System.getProperty("user.dir");
+        ClassPathResource imageFile = new ClassPathResource(absolutePath + IMAGE_PATH + imageName);
         log.info("이미지 경로 = " + imageFile.getURL());
         if (!imageFile.exists()) {
             log.info("이미지를 찾을 수 없습니다.");

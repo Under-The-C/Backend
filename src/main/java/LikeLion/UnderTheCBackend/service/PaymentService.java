@@ -13,6 +13,7 @@ import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.request.PrepareData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class PaymentService {
     private final String impKey;
@@ -64,17 +66,21 @@ public class PaymentService {
         BigDecimal priceSum = new BigDecimal("0");
         for (ShoppingList li : list) {
             /* 장바구니에서 꺼낸 정보를 바로 등록하게 바꿔서 아래는 주석 처리 */
-//            Optional<Product> opt = productRepository.findById(li.getProductId().getId());
-//            Product product = opt.orElseThrow((() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "product_id가 잘못되었습니다.")));
+            Optional<Product> opt = productRepository.findById(li.getProductId().getId());
+            log.info("li.getProductId(): " + li.getProductId().getId());
+            Product product = opt.orElseThrow((() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "product_id가 잘못되었습니다.")));
 
-            priceSum.add(li.getProductId().getPrice());
+            log.info("product.getPrice() = " + product.getPrice());
+            priceSum.add(product.getPrice());
+            log.info("priceSum = " + priceSum);
 
             /* 결제 상품 하나씩 등록 */
             ShoppingHistory shoppingHistory = new ShoppingHistory(li.getUserId(), li.getProductId(), li.getCount(), "결제대기");
+            log.info("shoppingHistory = " + shoppingHistory.getUserId().getId() + " " + shoppingHistory.getProductId().getId() + " " + shoppingHistory.getCount() + " " + shoppingHistory.getStatus());
             shoppingHistoryRepository.save(shoppingHistory);
 
             /* 장바구니에서 상품 지우기 */
-            shoppingListRepository.delete(li);
+//            shoppingListRepository.delete(li);
 
             /** 여기에 상품 수량 확인하는 코드가 필요할 듯 */
         }
