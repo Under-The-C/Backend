@@ -209,10 +209,13 @@ public class  SaleProductController {
     @Operation(summary = "판매 상품 모두 찾기", description = "Product 테이블의 모든 상품 반환", responses = {
             @ApiResponse(responseCode = "200", description = "성공")
     })@Transactional
-    public List<Product> findAll(){
-        List<Product> product = null;
-        product = productRepository.findAll();
-        return product;
+    public ResponseEntity<List<ResponseProduct>> findAll() {
+        List<Product> products = productRepository.findAll();
+        List<ResponseProduct> responseProducts = products.stream()
+                .map(this::convertToResponseProduct)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responseProducts);
     }
 
 
