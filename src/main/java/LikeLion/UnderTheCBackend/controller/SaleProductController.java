@@ -178,6 +178,15 @@ public class  SaleProductController {
     }
 
     private ResponseProduct convertToResponseProduct(Product product) {
+        List<String> detailImageUrls = new ArrayList<>();
+        for (ProductDetailImage detailImage : product.getDetailImage()) {
+            detailImageUrls.add(detailImage.getImageUrl());
+        }
+
+        List<String> keywords = new ArrayList<>();
+        for (ProductKeywordConnect keywordConnect : product.getKeywords()) {
+            keywords.add(keywordConnect.getProductKeyword().getKeyword());
+        }
         return new ResponseProduct(
                 product.getId(),
                 product.getUserId().getId(),
@@ -187,12 +196,8 @@ public class  SaleProductController {
                 product.getDescription(),
                 product.getSubDescription(),
                 product.getMainImage(),
-                product.getDetailImage().stream()
-                        .map(ProductDetailImage::getImageUrl)
-                        .collect(Collectors.toList()),
-                product.getKeywords().stream()
-                        .map(ProductKeywordConnect::getKeyword)
-                        .collect(Collectors.toList()),
+                detailImageUrls,
+                keywords,
                 product.getSaleStartDate(),
                 product.getSaleEndDate(),
                 product.getCategory(),
