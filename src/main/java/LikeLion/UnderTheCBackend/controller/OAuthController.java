@@ -70,7 +70,7 @@ public class OAuthController {
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 
-    @PostMapping("/kakao-unlink")
+    @GetMapping("/kakao-unlink")
     @Operation(summary = "카카오 계정 탈퇴", description = "인가 코드를 이용해 토큰을 받아 탈퇴하는 API", responses = {
             @ApiResponse(responseCode = "200", description = "OAuth 성공")
     })
