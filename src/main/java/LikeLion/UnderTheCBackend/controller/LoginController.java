@@ -74,7 +74,7 @@ public class LoginController {
         session.setAttribute("user", user.getId());
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Set-Cookie", "JSESSIONID=" + session.getId() + "; HttpOnly; SameSite=None; Secure");
+        headers.set("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=None; Secure");
         return new ResponseEntity<>(headers, HttpStatus.OK);
     }
 
