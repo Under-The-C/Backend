@@ -31,14 +31,17 @@ public class OAuthController {
     private final UserRepository userRepository;
     private final String redirectReactUrl;
     private final String redirectUrl;
+    private final String redirectUnlinkUrl;
 
-    public OAuthController(KakaoTokenJsonData kakaoTokenJsonData, KakaoUserInfo kakaoUserInfo, UserService userService, UserRepository userRepository, @Value("${redirect_react_URL}") String redirectReactUrl, @Value("${redirect_URL}") String redirectUrl) {
+    public OAuthController(KakaoTokenJsonData kakaoTokenJsonData, KakaoUserInfo kakaoUserInfo, UserService userService, UserRepository userRepository
+            , @Value("${redirect_react_URL}") String redirectReactUrl, @Value("${redirect_URL}") String redirectUrl, @Value("${redirect_unlink_URL}") String redirectUnlinkUrl) {
         this.kakaoTokenJsonData = kakaoTokenJsonData;
         this.kakaoUserInfo = kakaoUserInfo;
         this.userService = userService;
         this.userRepository = userRepository;
         this.redirectReactUrl = redirectReactUrl;
         this.redirectUrl = redirectUrl;
+        this.redirectUnlinkUrl = redirectUnlinkUrl;
     }
 
     @GetMapping("/code/kakao")
@@ -76,7 +79,7 @@ public class OAuthController {
     })
     public ResponseEntity<?> kakaoUnlink(@RequestParam("code") String code) {
         log.info("인가 코드를 이용하여 토큰을 받습니다.");
-        KakaoTokenResponse kakaoTokenResponse = kakaoTokenJsonData.getToken(code, redirectUrl); // Kakao OAuth 인가 코드를 토큰으로 교환하는 요청
+        KakaoTokenResponse kakaoTokenResponse = kakaoTokenJsonData.getToken(code, redirectUnlinkUrl); // Kakao OAuth 인가 코드를 토큰으로 교환하는 요청
         log.info("토큰에 대한 정보입니다.{}",kakaoTokenResponse);
         String token = kakaoTokenResponse.getAccess_token();
 
