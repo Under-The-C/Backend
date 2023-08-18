@@ -35,10 +35,8 @@ public class ShoppingService {
     public List<ShoppingList> addShoppingList(User user, Product product, Integer count) {
 
         /* 입력된 상품의 개수만큼 장바구니에 상품 추가 */
-        for (int i=0; i<count; ++i ){
-            ShoppingList shoppingList = new ShoppingList(user, product, count);
-            shoppingListRepository.save(shoppingList);
-        }
+        ShoppingList shoppingList = new ShoppingList(user, product, count);
+        shoppingListRepository.save(shoppingList);
 
         return shoppingListRepository.findByUserId_Id(user.getId());
     }

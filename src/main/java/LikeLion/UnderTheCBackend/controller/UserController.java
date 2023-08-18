@@ -23,7 +23,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 import static LikeLion.UnderTheCBackend.entity.Role.BUYER;
 import static LikeLion.UnderTheCBackend.entity.Role.SELLER;
@@ -117,12 +120,14 @@ public class UserController {
             log.info("detailAddress = {}", detailAddress);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "입력되지 않은 정보가 있습니다.");
         }
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yy_MM_dd");
 
         Role role;
-        if (json.getRole().toUpperCase().equals("BUYER")) {
+        if (json.getRole().equalsIgnoreCase("BUYER")) {
             role = BUYER;
         }
-        else if (json.getRole().toUpperCase().equals("SELLER")) {
+        else if (json.getRole().equalsIgnoreCase("SELLER")) {
             role = SELLER;
         }
         else {
@@ -131,7 +136,8 @@ public class UserController {
         MultipartFile certificate = json.getCertificate();
         String filename = null;
         if (certificate != null) {
-            filename = certificate.getOriginalFilename();
+            String randomStr = formatter.format(date) + UUID.randomUUID();
+            filename = randomStr + certificate.getOriginalFilename();
             log.info("reviewImage.getOriginalFilename = {}", filename);
 
             String absolutePath = System.getProperty("user.dir");
@@ -172,6 +178,10 @@ public class UserController {
         if (beforeUser.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
         }
+
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yy_MM_dd");
+
         String name = json.getName();
         String phone = json.getPhone();
         String address = json.getAddress();
@@ -180,7 +190,7 @@ public class UserController {
         MultipartFile certificate = json.getCertificate();
 
         User afterUser = beforeUser.get();
-        String absolutePath = System.getProperty("user.dir");;
+        String absolutePath = System.getProperty("user.dir");
 
         if(beforeUser.isPresent()) {
             if (name != null)
@@ -193,7 +203,8 @@ public class UserController {
                 afterUser.setDetailAddress(detailAddress);
 
             if (certificate != null) {
-                String filename1 = certificate.getOriginalFilename();
+                String randomStr = formatter.format(date) + UUID.randomUUID();
+                String filename1 = randomStr + certificate.getOriginalFilename();
                 log.info("reviewImage.getOriginalFilename = {}", filename1);
 
                 log.info(" absolutePath = {}", absolutePath);
@@ -205,29 +216,23 @@ public class UserController {
                 else {
                     log.info("이미 폴더가 생성되어 있습니다.");
                 }
-                profile.transferTo(new File(absolutePath +imagesPath + filename1));
-                afterUser.setProfile(filename1);
+                profile.transferTo(new File(absolutePath + imagesPath + filename1));
+                afterUser.setCertificate(filename1);
             }
 
             if (profile != null) {
-                String filename2 = profile.getOriginalFilename();
+                String randomStr = formatter.format(date) + UUID.randomUUID();
+                String filename2 = randomStr + profile.getOriginalFilename();
                 log.info("reviewImage.getOriginalFilename = {}", filename2);
 
-                String checkPath2 = absolutePath +imagesPath+filename2; //폴더 경로
-                File Folder2 = new File(checkPath2);
-                // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
-                if (!Folder2.exists()) {
-                    try{
-                        Folder2.mkdir(); //폴더 생성합니다.
-                        System.out.println("폴더가 생성되었습니다.");
-                    }
-                    catch(Exception e){
-                        e.getStackTrace();
-                    }
-                }else {
-                    System.out.println("이미 폴더가 생성되어 있습니다.");
+                if (mkdir(imagesPath)) {
+                    log.info("폴더가 생성되었습니다.");
                 }
-                profile.transferTo(new File(absolutePath +imagesPath+filename2));
+                else {
+                    log.info("이미 폴더가 생성되어 있습니다.");
+                }
+
+                profile.transferTo(new File(absolutePath + imagesPath + filename2));
                 afterUser.setProfile(filename2);
             }
 

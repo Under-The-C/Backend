@@ -294,7 +294,8 @@ public class  SaleProductController {
                     File file = new File(absolutePath + IMAGE_PATH + srcFileName);
                     file.delete();
                 }
-                product.setMainImage(mainImage.getOriginalFilename());
+                String randomStr = formatter.format(date) + UUID.randomUUID();
+                product.setMainImage(randomStr + mainImage.getOriginalFilename());
                 mainImage.transferTo(new File(absolutePath + IMAGE_PATH + product.getMainImage()));
             }
             productRepository.save(product);
