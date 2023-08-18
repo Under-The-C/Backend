@@ -25,6 +25,7 @@ public class ImageService {
 
         byte[] imageByteArray = imageStream.readAllBytes();
         imageStream.close();
+        log.info("이미지를 반환합니다.");
 
         return new ResponseEntity<>(imageByteArray, HttpStatus.OK);
     }
