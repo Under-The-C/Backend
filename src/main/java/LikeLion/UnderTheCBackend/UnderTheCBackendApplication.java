@@ -4,13 +4,18 @@ import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.net.MalformedURLException;
 
 @SpringBootApplication
 public class UnderTheCBackendApplication {
@@ -26,8 +31,10 @@ public class UnderTheCBackendApplication {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
-						.allowedOrigins("http://" + System.getenv("NCP_IP") + ":" + System.getenv("REACT_PORT"), "http://localhost:" + System.getenv("REACT_PORT"))
+						.allowedOrigins("http://" + System.getenv("NCP_IP") + ":" + System.getenv("REACT_PORT")
+								, "http://localhost:" + System.getenv("REACT_PORT"))
 						.allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+						.allowedHeaders("*")
 						.allowCredentials(true);
 			}
 		};
@@ -35,7 +42,7 @@ public class UnderTheCBackendApplication {
 
 	/* HTTPS 설정 */
 	@Bean
-	public ServletWebServerFactory servletContainer() {
+	public ServletWebServerFactory servletContainer(@Value("${server.port}") Integer port) {
 		// Enable SSL Trafic
 		TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
 			@Override
@@ -50,7 +57,7 @@ public class UnderTheCBackendApplication {
 		};
 
 		// Add HTTP to HTTPS redirect
-		tomcat.addAdditionalTomcatConnectors(httpToHttpsRedirectConnector());
+		tomcat.addAdditionalTomcatConnectors(httpToHttpsRedirectConnector(port));
 
 		return tomcat;
 	}
@@ -60,12 +67,12 @@ public class UnderTheCBackendApplication {
     port 8082. With SSL it will use port 8443. So, any request for 8082 needs to be
     redirected to HTTPS on 8443.
      */
-	private Connector httpToHttpsRedirectConnector() {
+	private Connector httpToHttpsRedirectConnector(Integer port) {
 		Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
 		connector.setPort(80);
 		connector.setScheme("http");
 		connector.setSecure(false);
-		connector.setRedirectPort(443);
+		connector.setRedirectPort(port);
 		return connector;
 	}
 
